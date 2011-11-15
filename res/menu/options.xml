@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/newestoffers" android:title="@string/newestOffers" android:icon="@drawable/tbnewest"></item>
+    <item android:id="@+id/jobs" android:title="@string/searchJobs" android:icon="@drawable/tbjobs"></item>
+    <item android:id="@+id/people" android:title="@string/searchPeople" android:icon="@drawable/tbpeople"></item>
+    <item android:id="@+id/search" android:title="@string/search" android:icon="@drawable/tbsearch"></item>
+    <item android:id="@+id/post" android:title="@string/post" android:icon="@drawable/tbpostoffer"></item>
+    <item android:id="@+id/settings" android:title="@string/settings" android:icon="@drawable/tbsettings"></item>
+    <item android:id="@+id/syncagain" android:title="@string/syncagain" android:icon="@drawable/tbsyncagain"></item>
+    <item android:id="@+id/about" android:title="@string/about" android:icon="@drawable/tbabout"></item>
+</menu>

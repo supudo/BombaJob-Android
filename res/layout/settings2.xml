@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainFrame" android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+  
+	<TableLayout android:id="@+id/tableSettings" android:layout_width="fill_parent" android:layout_height="fill_parent"
+	    android:padding="10dp">
+	    
+	    <TableRow android:id="@+id/row1" android:layout_width="fill_parent" android:layout_height="wrap_content">
+		    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		        android:orientation="horizontal"
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent">
+		        <ImageButton android:id="@+id/info_icon1" android:src="@drawable/iconinfo"
+		                     android:layout_width="wrap_content" android:layout_height="wrap_content" 
+		                     android:layout_marginRight="5dip" />
+                <ToggleButton
+                    android:id="@+id/togglePrivateData"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dip" android:layout_marginRight="5dip" />
+		        <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+		                  android:layout_marginTop="10dip" android:text="@string/about_StorePrivateData" />
+		    </LinearLayout>
+        </TableRow>
+        
+        <TableRow android:id="@+id/row2" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+                <ImageButton android:id="@+id/info_icon2" android:src="@drawable/iconinfo"
+                             android:layout_width="wrap_content" android:layout_height="wrap_content" 
+                             android:layout_marginRight="5dip" />
+                <ToggleButton
+                    android:id="@+id/toggleGeo"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dip" android:layout_marginRight="5dip" />
+                <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                          android:layout_marginTop="10dip" android:text="@string/about_SendGeo" />
+            </LinearLayout>
+        </TableRow>
+        
+        <TableRow android:id="@+id/row3" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+                <ImageButton android:id="@+id/info_icon3" android:src="@drawable/iconinfo"
+                             android:layout_width="wrap_content" android:layout_height="wrap_content" 
+                             android:layout_marginRight="5dip" />
+                <ToggleButton
+                    android:id="@+id/toggleSync"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dip" android:layout_marginRight="5dip" />
+                <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                          android:layout_marginTop="10dip" android:text="@string/about_InitSync" />
+            </LinearLayout>
+        </TableRow>
+        
+        <TableRow android:id="@+id/row4" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+                <ImageButton android:id="@+id/info_icon4" android:src="@drawable/iconinfo"
+                             android:layout_width="wrap_content" android:layout_height="wrap_content" 
+                             android:layout_marginRight="5dip" />
+                <ToggleButton
+                    android:id="@+id/toggleSearch"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dip" android:layout_marginRight="5dip" />
+                <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                          android:layout_marginTop="10dip" android:text="@string/about_OnlineSearch" />
+            </LinearLayout>
+        </TableRow>
+        
+        <TableRow android:id="@+id/row5" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+                <ImageButton android:id="@+id/info_icon5" android:src="@drawable/iconinfo"
+                             android:layout_width="wrap_content" android:layout_height="wrap_content" 
+                             android:layout_marginRight="5dip" />
+                <ToggleButton
+                    android:id="@+id/toggleInAppEmail"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dip" android:layout_marginRight="5dip" />
+                <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                          android:layout_marginTop="10dip" android:text="@string/about_InAppEmail" />
+            </LinearLayout>
+        </TableRow>
+        
+        <TableRow android:id="@+id/row6" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+                <ImageButton android:id="@+id/info_icon6" android:src="@drawable/iconinfo"
+                             android:layout_width="wrap_content" android:layout_height="wrap_content" 
+                             android:layout_marginRight="5dip" />
+                <ToggleButton
+                    android:id="@+id/toggleShowCategories"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dip" android:layout_marginRight="5dip" />
+                <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                          android:layout_marginTop="10dip" android:text="@string/about_ShowCategories" />
+            </LinearLayout>
+        </TableRow>
+
+    </TableLayout>
+
+</FrameLayout>
+ 
