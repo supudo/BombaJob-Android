@@ -11,6 +11,7 @@ public class DatabaseSchema {
 
 	public static final class SettingsColumns implements BaseColumns {
 		private SettingsColumns(){};
+		public static final String EDITABLE_YN = "editableyn";
 		public static final String SNAME = "sname";
 		public static final String SVALUE = "svalue";
 	}

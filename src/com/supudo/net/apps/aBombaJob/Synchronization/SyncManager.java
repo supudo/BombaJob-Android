@@ -20,6 +20,15 @@ import com.supudo.net.apps.aBombaJob.URLHelpers.URLHelper;
 
 public class SyncManager implements URLHelperCallbacks {
 
+	private SyncManagerCallbacks mDelegate;
+	private Context mCtx;
+	private URLHelper urlHelper;
+	private DatabaseModel dbModel;
+	private SQLiteDatabase db = null;
+	private boolean finished = false;
+	private String state = ServicesNames.CONFIGURATION_SERVICE;
+	private boolean syncNewOffers = true;
+
 	public static interface SyncManagerCallbacks {
 		public void syncFinished();
 		public void onSyncProgress(int progress);
@@ -53,17 +62,6 @@ public class SyncManager implements URLHelperCallbacks {
 		public static final Integer SEARCH_SERVICE = 8;
 		public static final Integer SENDEMAIL_SERVICE = 9;
 	}
-
-	private SyncManagerCallbacks mDelegate;
-
-	private Context mCtx;
-
-	private URLHelper urlHelper;
-	private DatabaseModel dbModel;
-	private SQLiteDatabase db = null;
-	private boolean finished = false;
-
-	private String state = ServicesNames.CONFIGURATION_SERVICE;
 
 	public String getState() {
 		return state;
@@ -104,11 +102,22 @@ public class SyncManager implements URLHelperCallbacks {
 		mCtx = null;
 	}
 	
+	/* ------------------------------------------
+	 * 
+	 * Public services
+	 * 
+	 * ------------------------------------------
+	 */
 	public void synchronize() {
-		synchronize(ServicesNames.CONFIGURATION_SERVICE);
+		synchronize(ServicesNames.CONFIGURATION_SERVICE, true);
+	}
+	
+	public void synchronize(boolean _syncOffers) {
+		synchronize(ServicesNames.CONFIGURATION_SERVICE, _syncOffers);
 	}
 
-	public void synchronize(String serviceName) {
+	public void synchronize(String serviceName, boolean _syncOffers) {
+		syncNewOffers = _syncOffers;
 		try {
 			db = dbModel.getWritableDatabase();
 			db.execSQL("PRAGMA foreign_keys = ON;");
@@ -137,6 +146,46 @@ public class SyncManager implements URLHelperCallbacks {
 			mDelegate.onSyncError(e);
 		}
 	}
+
+	public void GetSearchJobs() {
+		db = dbModel.getWritableDatabase();
+		db.execSQL("PRAGMA foreign_keys = ON;");
+		Log.d("Sync", "GetSearchJobs ... ");
+		synchronize(ServicesNames.SEARCHJOBS_SERVICE, false);
+	}
+
+	public void GetSearchPeople() {
+		db = dbModel.getWritableDatabase();
+		db.execSQL("PRAGMA foreign_keys = ON;");
+		Log.d("Sync", "GetSearchPeople ... ");
+		synchronize(ServicesNames.SEARCHPEOPLE_SERVICE, false);
+	}
+
+	public void GetSearch(String searchKeyword, int searchForFreelance) {
+		try {
+			db = dbModel.getWritableDatabase();
+			db.execSQL("PRAGMA foreign_keys = ON;");
+			Log.d("Sync", "GetSearch ... ");
+			this.loadSearchUrl(searchKeyword, searchForFreelance);
+		}
+		catch (NotFoundException e) {
+			e.printStackTrace();
+			Log.d("Sync", "GetSearch error - " + e.getMessage());
+			mDelegate.onSyncError(e);
+		}
+		catch (MalformedURLException e) {
+			e.printStackTrace();
+			Log.d("Sync", "GetSearch error - " + e.getMessage());
+			mDelegate.onSyncError(e);
+		}
+	}
+
+	/* ------------------------------------------
+	 * 
+	 * Workers
+	 * 
+	 * ------------------------------------------
+	 */
 
 	@Override
 	public void updateModelWithJSONObject(JSONObject object, Integer serviceId) {
@@ -202,69 +251,6 @@ public class SyncManager implements URLHelperCallbacks {
 		db.close();
 		finished = true;
 		mDelegate.syncFinished();
-	}
-	
-	/* ------------------------------------------
-	 * 
-	 * Public services
-	 * 
-	 * ------------------------------------------
-	 */
-	public void GetSearchJobs() {
-		try {
-			db = dbModel.getWritableDatabase();
-			db.execSQL("PRAGMA foreign_keys = ON;");
-			Log.d("Sync", "GetSearchJobs ... ");
-			this.loadSearchJobsUrl();
-		}
-		catch (NotFoundException e) {
-			e.printStackTrace();
-			Log.d("Sync", "GetSearchJobs error - " + e.getMessage());
-			mDelegate.onSyncError(e);
-		}
-		catch (MalformedURLException e) {
-			Log.d("Sync", "GetSearchJobs error - " + e.getMessage());
-			e.printStackTrace();
-			mDelegate.onSyncError(e);
-		}
-	}
-
-	public void GetSearchPeople() {
-		try {
-			db = dbModel.getWritableDatabase();
-			db.execSQL("PRAGMA foreign_keys = ON;");
-			Log.d("Sync", "GetSearchPeople ... ");
-			this.loadSearchPeopleUrl();
-		}
-		catch (NotFoundException e) {
-			e.printStackTrace();
-			Log.d("Sync", "GetSearchPeople error - " + e.getMessage());
-			mDelegate.onSyncError(e);
-		}
-		catch (MalformedURLException e) {
-			e.printStackTrace();
-			Log.d("Sync", "GetSearchPeople error - " + e.getMessage());
-			mDelegate.onSyncError(e);
-		}
-	}
-
-	public void GetSearch(String searchKeyword, int searchForFreelance) {
-		try {
-			db = dbModel.getWritableDatabase();
-			db.execSQL("PRAGMA foreign_keys = ON;");
-			Log.d("Sync", "GetSearch ... ");
-			this.loadSearchUrl(searchKeyword, searchForFreelance);
-		}
-		catch (NotFoundException e) {
-			e.printStackTrace();
-			Log.d("Sync", "GetSearch error - " + e.getMessage());
-			mDelegate.onSyncError(e);
-		}
-		catch (MalformedURLException e) {
-			e.printStackTrace();
-			Log.d("Sync", "GetSearch error - " + e.getMessage());
-			mDelegate.onSyncError(e);
-		}
 	}
 	
 	/* ------------------------------------------
@@ -380,6 +366,8 @@ public class SyncManager implements URLHelperCallbacks {
 				c.close();
 			}
 			Log.d("Sync", "handleTextContent ... done");
+			if (!syncNewOffers)
+				finishSync();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -409,7 +397,9 @@ public class SyncManager implements URLHelperCallbacks {
 				cv.put(DatabaseSchema.JobOffersColumns.PUBLISH_DATE, ent.getString("date"));
 				cv.put(DatabaseSchema.JobOffersColumns.PUBLISH_DATE_STAMP, ent.getString("datestamp"));
 
-				Cursor c = db.rawQuery("SELECT * FROM " + DatabaseSchema.JOBOFFER_TABLE_NAME + " WHERE " + DatabaseSchema.JobOffersColumns._ID + " = ?;", new String[] {ent.getString("id")});
+				String q = "SELECT * FROM " + DatabaseSchema.JOBOFFER_TABLE_NAME + " WHERE _id = " + ent.getString("id");
+				Cursor c = db.rawQuery(q, null);
+				//Cursor c = db.rawQuery("SELECT * FROM " + DatabaseSchema.JOBOFFER_TABLE_NAME + " WHERE _id = ?", new String[] {ent.getString("id")});
 				if (c.getCount() == 0) {
 					cv.put(DatabaseSchema.JobOffersColumns.SENTMESSAGE_YN, 0);
 					cv.put(DatabaseSchema.JobOffersColumns.READ_YN, 0);
@@ -458,7 +448,9 @@ public class SyncManager implements URLHelperCallbacks {
 				cv.put(DatabaseSchema.JobOffersColumns.PUBLISH_DATE, ent.getString("date"));
 				cv.put(DatabaseSchema.JobOffersColumns.PUBLISH_DATE_STAMP, ent.getString("datestamp"));
 
-				Cursor c = db.rawQuery("SELECT * FROM " + DatabaseSchema.JOBOFFER_TABLE_NAME + " WHERE " + DatabaseSchema.JobOffersColumns._ID + " = ?;", new String[] {ent.getString("id")});
+				String q = "SELECT * FROM " + DatabaseSchema.JOBOFFER_TABLE_NAME + " WHERE _id = " + ent.getString("id");
+				Cursor c = db.rawQuery(q, null);
+				//Cursor c = db.rawQuery("SELECT * FROM " + DatabaseSchema.JOBOFFER_TABLE_NAME + " WHERE _id = ?", new String[] {ent.getString("id")});
 				if (c.getCount() == 0) {
 					cv.put(DatabaseSchema.JobOffersColumns.SENTMESSAGE_YN, 0);
 					cv.put(DatabaseSchema.JobOffersColumns.READ_YN, 0);

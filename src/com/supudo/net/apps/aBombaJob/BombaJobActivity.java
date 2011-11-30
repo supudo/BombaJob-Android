@@ -1,6 +1,11 @@
 package com.supudo.net.apps.aBombaJob;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import com.supudo.net.apps.aBombaJob.R;
 import com.supudo.net.apps.aBombaJob.Database.DataHelper;
@@ -12,7 +17,6 @@ import com.supudo.net.apps.aBombaJob.Synchronization.SyncManager.SyncManagerCall
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ProgressBar;
 
 public class BombaJobActivity extends MainActivity implements SyncManagerCallbacks {
@@ -27,29 +31,26 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-		setTitle(R.string.app_name);
+		setTitle(R.string.app_name);		
+		isSynchronized = false;
     }
 
     @Override
     public void onStart() {
     	super.onStart();
 
+    	isSynchronized = checkLastSyncDate();
+ 
     	syncProgress = (ProgressBar)findViewById(R.id.sync_progress);
-    	syncProgress.setMax(400);
-    	syncProgress.setProgress(0);
+    	syncProgress.setIndeterminate(true);
 
 		if (syncManager == null)
 			syncManager = new SyncManager(this, this);
-		
-		isSynchronized = false;
-		if (isSynchronized) {
-			syncProgress.setVisibility(View.INVISIBLE);
+
+		if (isSynchronized)
 			syncFinished();
-		}
-		else {
-			syncProgress.setVisibility(View.VISIBLE);
+		else
 			syncManager.synchronize();
-		}
     }
 
 	@Override
@@ -72,13 +73,11 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
 
 	@Override
 	public void syncFinished() {
-		syncProgress.setVisibility(View.INVISIBLE);
 		isSynchronized = true;
 		LoadSettings();
+		CommonSettings.lastSyncDate = Calendar.getInstance().getTime();
     	Intent myIntent = new Intent().setClass(BombaJobActivity.this, NewestOffers.class);
     	startActivityForResult(myIntent, 0);
-		//Intent dbChanged = new Intent(BankomatiMapActivity.MapActivityAction);
-		//sendBroadcast(dbChanged);
 	}
 
 	@Override
@@ -96,24 +95,66 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
 			dbHelper = new DataHelper(this);
 		
 		ArrayList<SettingModel> listSettings = dbHelper.selectAllSettings();
+		SettingModel _model = null;
 		String sName = "";
 		boolean sValue = false;
 		for (int i=0; i<listSettings.size(); i++) {
-			sName = ((SettingModel)listSettings.get(i)).SName;
-			sValue = Boolean.valueOf(((SettingModel)listSettings.get(i)).SValue);
+			_model = (SettingModel)listSettings.get(i);
+			if (_model.EditableYn) {
+				sName = _model.SName;
+				sValue = Boolean.valueOf(_model.SValue);
+	
+				if (sName.equalsIgnoreCase("StorePrivateData"))
+					CommonSettings.stStorePrivateData = sValue;
+				else if (sName.equalsIgnoreCase("SendGeo"))
+					CommonSettings.stSendGeo = sValue;
+				else if (sName.equalsIgnoreCase("InitSync"))
+					CommonSettings.stInitSync = sValue;
+				else if (sName.equalsIgnoreCase("OnlineSearch"))
+					CommonSettings.stSearchOnline = sValue;
+				else if (sName.equalsIgnoreCase("InAppEmail"))
+					CommonSettings.stInAppEmail = sValue;
+				else if (sName.equalsIgnoreCase("ShowCategories"))
+					CommonSettings.stShowCategories = sValue;
+			}
+		}
+	}
+	
+	private boolean checkLastSyncDate() {
+		if (dbHelper == null)
+			dbHelper = new DataHelper(this);
 
-			if (sName.equalsIgnoreCase("StorePrivateData"))
-				CommonSettings.stStorePrivateData = sValue;
-			else if (sName.equalsIgnoreCase("SendGeo"))
-				CommonSettings.stSendGeo = sValue;
-			else if (sName.equalsIgnoreCase("InitSync"))
-				CommonSettings.stInitSync = sValue;
-			else if (sName.equalsIgnoreCase("OnlineSearch"))
-				CommonSettings.stSearchOnline = sValue;
-			else if (sName.equalsIgnoreCase("InAppEmail"))
-				CommonSettings.stInAppEmail = sValue;
-			else if (sName.equalsIgnoreCase("ShowCategories"))
-				CommonSettings.stShowCategories = sValue;
+		SettingModel settLastSyncDate = dbHelper.GetSetting("lastSyncDate");
+		SimpleDateFormat df = new SimpleDateFormat(CommonSettings.DefaultDateFormat);
+
+		if (CommonSettings.lastSyncDate == null && (settLastSyncDate == null || settLastSyncDate.SValue.trim().equalsIgnoreCase(""))) {
+			CommonSettings.lastSyncDate = Calendar.getInstance().getTime();
+			dbHelper.SetSetting("lastSyncDate", df.format(CommonSettings.lastSyncDate));
+			Log.d("Sync", "Scheduling synchronization now ...");
+			return false;
+		}
+		else {
+			DateFormat formatter = new SimpleDateFormat(CommonSettings.DefaultDateFormat);
+			Date ldt = null;
+			try {
+				ldt = (Date)formatter.parse(settLastSyncDate.SValue);
+			}
+			catch (ParseException ex) {
+				ldt = Calendar.getInstance().getTime();
+				Log.e("BombaJobActivity", "lastSyncDate parse failed!");
+			}
+			long diffInSeconds = (Calendar.getInstance().getTime().getTime() - ldt.getTime()) / 1000;
+			Log.d("Sync", "Skipping synchronization - last @ " + (diffInSeconds * 60));
+			if (diffInSeconds >= 3600) {
+				CommonSettings.lastSyncDate = Calendar.getInstance().getTime();
+				dbHelper.SetSetting("lastSyncDate", df.format(CommonSettings.lastSyncDate));
+				return false;
+			}
+			else {
+				if (CommonSettings.lastSyncDate == null)
+					CommonSettings.lastSyncDate = ldt;
+				return true;
+			}
 		}
 	}
 }

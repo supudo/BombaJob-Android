@@ -4,5 +4,86 @@
   android:layout_height="fill_parent"
   android:orientation="vertical"
   android:background="@drawable/bgpattern">
+ 
+    <ScrollView android:id="@+id/offerdetails_scrollview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        
+        <LinearLayout android:id="@+id/offerdetails_layoutview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="fill_parent" android:layout_height="wrap_content"
+                    android:layout_margin="6dp" android:paddingTop="4dp"
+                    android:orientation="horizontal"> 
+	                <Button android:id="@+id/facebook_post" android:text="@string/btn_facebook"
+	                   android:layout_width="100dp" android:layout_height="wrap_content" />
+                    <Button android:id="@+id/twitter_post" android:text="@string/btn_twitter"
+                       android:layout_width="100dp" android:layout_height="wrap_content" />
+                    <Button android:id="@+id/email_post" android:text="@string/btn_email"
+                       android:layout_width="100dp" android:layout_height="wrap_content" />
+                </LinearLayout>
+
+	            <!--  Category -->
+			    <TextView android:id="@+id/category" android:text="Category..."
+			        android:layout_width="fill_parent" android:layout_height="wrap_content"
+			        android:textAppearance="?android:attr/textAppearanceMedium"
+			        android:layout_margin="6dp" android:paddingTop="10dp" />
+			
+	            <!--  Title -->
+			    <TextView android:id="@+id/title" android:text="Title..."
+			        android:layout_width="fill_parent" android:layout_height="wrap_content"
+			        android:textAppearance="?android:attr/textAppearanceMedium"
+			        android:layout_margin="6dp" android:textStyle="bold" android:paddingTop="4dp" />
+			
+	            <!--  Date -->
+			    <TextView android:id="@+id/date" android:text="Date..."
+			        android:layout_width="fill_parent" android:layout_height="wrap_content"
+			        android:textAppearance="?android:attr/textAppearanceSmall"
+			        android:layout_margin="6dp" android:paddingTop="4dp" />
+			
+	            <!--  Freelance -->
+	            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	                android:layout_width="fill_parent" android:layout_height="wrap_content"
+	                android:layout_margin="6dp" android:paddingTop="4dp"
+	                android:orientation="horizontal"> 
+	                <TextView android:id="@+id/freelance_title" android:text="Freelance..."
+	                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+	                    android:textStyle="bold" android:textAppearance="?android:attr/textAppearanceSmall"/>
+	                <TextView android:id="@+id/freelance" android:text="..."
+	                    android:layout_width="fill_parent" android:layout_height="wrap_content"
+	                    android:textAppearance="?android:attr/textAppearanceSmall"
+	                    android:layout_marginLeft="6dp" />
+	            </LinearLayout>
+	        
+	            <!--  Positivism -->
+			    <TextView android:id="@+id/positivism_title" android:text="Positivism..."
+			        android:layout_width="fill_parent" android:layout_height="wrap_content"
+			        android:textAppearance="?android:attr/textAppearanceSmall"
+			        android:layout_marginLeft="6dp" android:layout_marginRight="6dp" android:layout_marginTop="6dp"
+			        android:textStyle="bold" android:paddingTop="4dp" />
+			    <TextView android:id="@+id/positivism" android:text="..."
+			        android:layout_width="fill_parent" android:layout_height="wrap_content"
+			        android:textAppearance="?android:attr/textAppearanceSmall"
+			        android:layout_marginLeft="6dp" android:layout_marginRight="6dp" android:layout_marginTop="6dp"
+			        android:paddingTop="4dp" android:autoLink="web|phone|email" />
+			
+	            <!--  Negativism -->
+			    <TextView android:id="@+id/negativism_title" android:text="Negativism..."
+			        android:layout_width="fill_parent" android:layout_height="wrap_content"
+			        android:textAppearance="?android:attr/textAppearanceSmall"
+			        android:layout_marginLeft="6dp" android:layout_marginRight="6dp" android:layout_marginTop="6dp"
+			        android:textStyle="bold" android:paddingTop="4dp" />
+			    <TextView android:id="@+id/negativism" android:text="..."
+			        android:layout_width="fill_parent" android:layout_height="wrap_content"
+			        android:textAppearance="?android:attr/textAppearanceSmall"
+			        android:layout_marginLeft="6dp" android:layout_marginRight="6dp" android:layout_marginTop="6dp"
+			        android:paddingTop="4dp" android:paddingBottom="10dp" android:autoLink="web|phone|email" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

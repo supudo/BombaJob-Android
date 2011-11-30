@@ -19,6 +19,7 @@ public class DatabaseModel extends SQLiteOpenHelper {
 	private static final String SETTINGS_TABLE_CREATE =
 		"CREATE TABLE " + DatabaseSchema.SETTINGS_TABLE_NAME + " (" +
 		SettingsColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+		SettingsColumns.EDITABLE_YN + " TINYINT," +
 		SettingsColumns.SNAME + " VARCHAR," +
 		SettingsColumns.SVALUE + " VARCHAR);";
 
@@ -35,7 +36,7 @@ public class DatabaseModel extends SQLiteOpenHelper {
 		CategoriesColumns.OFFERS_COUNT + " INTEGER);";
 
 	private static final String JOBOFFER_TABLE_CREATE =
-		"CREATE TABLE " + DatabaseSchema.JOBOFFER_TABLE_NAME + " (" +
+		"CREATE VIRTUAL TABLE " + DatabaseSchema.JOBOFFER_TABLE_NAME + " USING FTS3 (" +
 		JobOffersColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
 		JobOffersColumns.CATEGORY_ID + " INTEGER UNSIGNED REFERENCES " + DatabaseSchema.CATEGORY_TABLE_NAME + "(" + DatabaseSchema.CategoriesColumns._ID + ") ON UPDATE CASCADE ON DELETE CASCADE," +
 		JobOffersColumns.TITLE + " VARCHAR," +
@@ -79,13 +80,14 @@ public class DatabaseModel extends SQLiteOpenHelper {
 	}
 	
 	private void InitSettings(SQLiteDatabase db) {
-		String[] settings = new String[6];
-		settings[0] = "StorePrivateData|TRUE";
-		settings[1] = "SendGeo|FALSE";
-		settings[2] = "InitSync|TRUE";
-		settings[3] = "OnlineSearch|TRUE";
-		settings[4] = "InAppEmail|FALSE";
-		settings[5] = "ShowCategories|TRUE";
+		String[] settings = new String[7];
+		settings[0] = "StorePrivateData|TRUE|1";
+		settings[1] = "SendGeo|FALSE|1";
+		settings[2] = "InitSync|TRUE|1";
+		settings[3] = "OnlineSearch|TRUE|1";
+		settings[4] = "InAppEmail|FALSE|1";
+		settings[5] = "ShowCategories|TRUE|1";
+		settings[6] = "lastSyncDate| |0";
 
 		ContentValues cv;
 		for (int i=0; i<settings.length; i++) {
@@ -93,6 +95,7 @@ public class DatabaseModel extends SQLiteOpenHelper {
 			String[] starr = settings[i].split("\\|");
 			cv.put(DatabaseSchema.SettingsColumns.SNAME, starr[0]);
 			cv.put(DatabaseSchema.SettingsColumns.SVALUE, starr[1]);
+			cv.put(DatabaseSchema.SettingsColumns.EDITABLE_YN, starr[2]);
 			db.insert(DatabaseSchema.SETTINGS_TABLE_NAME, null, cv);
 		}
 		Log.e("DatabaseModel", "Settings initiated");

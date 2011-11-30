@@ -49,7 +49,7 @@ public class Search extends MainActivity implements Runnable, SyncManagerCallbac
 		setContentView(R.layout.search);
 		setTitle(R.string.search);
 
-		sFreelance = -1;
+		sFreelance = 0;
 		cmbFreelance = (Spinner)findViewById(R.id.freelance);
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.searchFreelance_array, android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -76,10 +76,9 @@ public class Search extends MainActivity implements Runnable, SyncManagerCallbac
 			sKeyword = txtSearch.getText().toString();
         	
         	if (CommonSettings.stSearchOnline && CommonSettings.reloadSearch) {
-        		Log.d("Search", "Starting online search...");
     	     	loadingDialog = ProgressDialog.show(Search.this, "", getString(R.string.loading), true);
     	    	Thread thread = new Thread(Search.this);
-    	        thread.start();
+    	        thread.run();
         	}
         	else
         		OpenResults();
@@ -130,6 +129,8 @@ public class Search extends MainActivity implements Runnable, SyncManagerCallbac
 	
 	private void OpenResults() {
     	Intent myIntent = new Intent().setClass(Search.this, SearchResults.class);
+    	myIntent.putExtra("sKeyword", sKeyword);
+    	myIntent.putExtra("sFreelance", sFreelance);
     	startActivityForResult(myIntent, 0);
 	}
 

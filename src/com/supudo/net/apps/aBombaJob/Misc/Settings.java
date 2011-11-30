@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import com.supudo.net.apps.aBombaJob.R;
 import com.supudo.net.apps.aBombaJob.TableActivity;
+import com.supudo.net.apps.aBombaJob.DataAdapters.SettingsAdapter;
 import com.supudo.net.apps.aBombaJob.Database.DataHelper;
 import com.supudo.net.apps.aBombaJob.Database.Models.SettingModel;
-import com.supudo.net.apps.aBombaJob.Offers.Adapters.SettingsAdapter;
 
 import android.os.Bundle;
 import android.widget.ListView;
@@ -30,7 +30,7 @@ public class Settings extends TableActivity {
 		if (dbHelper == null)
 			dbHelper = new DataHelper(this);
 
-		listSettings = dbHelper.selectAllSettings();
+		listSettings = dbHelper.selectEditableSettings();
 
 		if (listSettings.size() == 0)
 			txtEmpty.setText(getString(R.string.no_settings));

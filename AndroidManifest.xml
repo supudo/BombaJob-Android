@@ -30,6 +30,8 @@
         <activity android:name="com.supudo.net.apps.aBombaJob.Offers.OfferDetails" android:label="@string/app_name" android:theme="@style/Theme.OrangeJob"></activity>
         <activity android:name="com.supudo.net.apps.aBombaJob.Offers.Search" android:label="@string/app_name" android:theme="@style/Theme.OrangeJob"></activity>
         <activity android:name="com.supudo.net.apps.aBombaJob.Offers.SearchResults" android:label="@string/app_name" android:theme="@style/Theme.OrangeJob"></activity>
+        <activity android:name="com.supudo.net.apps.aBombaJob.Offers.Categories" android:label="@string/app_name" android:theme="@style/Theme.OrangeJob"></activity>
+        <activity android:name="com.supudo.net.apps.aBombaJob.Offers.JobOffers" android:label="@string/app_name" android:theme="@style/Theme.OrangeJob"></activity>
         <activity android:name="com.supudo.net.apps.aBombaJob.Post.Post" android:label="@string/app_name" android:theme="@style/Theme.OrangeJob"></activity>
         <activity android:name="com.supudo.net.apps.aBombaJob.Misc.About" android:label="@string/app_name" android:theme="@style/Theme.OrangeJob"></activity>
         <activity android:name="com.supudo.net.apps.aBombaJob.Misc.Misc" android:label="@string/app_name" android:theme="@style/Theme.OrangeJob"></activity>

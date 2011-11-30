@@ -8,9 +8,9 @@ import com.google.ads.AdView;
 import com.supudo.net.apps.aBombaJob.CommonSettings;
 import com.supudo.net.apps.aBombaJob.R;
 import com.supudo.net.apps.aBombaJob.TableActivity;
+import com.supudo.net.apps.aBombaJob.DataAdapters.NewestOffersAdapter;
 import com.supudo.net.apps.aBombaJob.Database.DataHelper;
 import com.supudo.net.apps.aBombaJob.Database.Models.JobOfferModel;
-import com.supudo.net.apps.aBombaJob.Offers.Adapters.NewestOffersAdapter;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,7 +34,7 @@ public class NewestOffers extends TableActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.newestoffers);
 		setTitle(R.string.newestOffers);
-		
+
 		txtEmpty = (TextView)this.getListView().getEmptyView();
 		txtEmpty.setText("");
 
@@ -47,17 +47,19 @@ public class NewestOffers extends TableActivity {
 		
 		if (dbHelper == null)
 			dbHelper = new DataHelper(this);
+
 		reloadItems();
-		
+
 		if (listItems.size() == 0)
 			txtEmpty.setText(getString(R.string.no_offers));
 		else {
-    		setListAdapter(new NewestOffersAdapter(NewestOffers.this, R.layout.list_item, listItems));
+			setListAdapter(new NewestOffersAdapter(NewestOffers.this, R.layout.list_item, listItems));
 
-    		ListView lv = getListView();
+			ListView lv = getListView();
     		lv.setTextFilterEnabled(true);
 
-    		lv.setOnItemClickListener(new OnItemClickListener() {
+			lv.setTextFilterEnabled(true);
+			lv.setOnItemClickListener(new OnItemClickListener() {
     			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     				Toast.makeText(getApplicationContext(), ((TextView)view.findViewById(R.id.title)).getText(), Toast.LENGTH_SHORT).show();
     				Intent intent = new Intent().setClass(NewestOffers.this, OfferDetails.class);
@@ -72,7 +74,7 @@ public class NewestOffers extends TableActivity {
     public void onStart() {
     	super.onStart();
     	reloadItems();
-    	setListAdapter(new NewestOffersAdapter(NewestOffers.this, R.layout.list_item, listItems)); 
+    	setListAdapter(new NewestOffersAdapter(NewestOffers.this, R.layout.list_item, listItems));
     }
 
 	@Override
