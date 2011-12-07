@@ -13,7 +13,7 @@ import net.supudo.apps.aBombaJob.Offers.NewestOffers;
 import net.supudo.apps.aBombaJob.Synchronization.SyncManager;
 import net.supudo.apps.aBombaJob.Synchronization.SyncManager.SyncManagerCallbacks;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 import android.content.Intent;
 import android.os.Bundle;

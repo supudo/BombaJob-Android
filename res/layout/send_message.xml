@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:id="@+id/send_message_layout"
+    android:background="@drawable/bgpattern">
+    <Button android:id="@+id/btn_send"
+        android:layout_width="fill_parent" android:layout_height="40dp" android:layout_margin="10dp"
+        android:background="@drawable/btnboom" android:text="@string/send_message" android:textColor="#FF8D00"
+        android:textSize="20sp" />
+    <EditText android:id="@+id/offer_message"
+        android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="10dp"
+        android:hint="@string/offerMessage_Placeholder" android:inputType="textMultiLine" android:scrollbars="vertical"
+        android:gravity="left">
+        <requestFocus />
+    </EditText>
+</LinearLayout>

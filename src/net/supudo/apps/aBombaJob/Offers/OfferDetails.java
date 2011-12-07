@@ -5,16 +5,20 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import net.supudo.apps.aBombaJob.CommonSettings;
 import net.supudo.apps.aBombaJob.MainActivity;
 import net.supudo.apps.aBombaJob.Database.DataHelper;
 import net.supudo.apps.aBombaJob.Database.Models.JobOfferModel;
-import net.supudo.apps.aBombaJob.Facebook.BaseDialogListener;
-import net.supudo.apps.aBombaJob.Facebook.BaseRequestListener;
-import net.supudo.apps.aBombaJob.Facebook.SessionEvents;
-import net.supudo.apps.aBombaJob.Facebook.SessionStore;
-import net.supudo.apps.aBombaJob.Facebook.SessionEvents.AuthListener;
+import net.supudo.apps.aBombaJob.SocNet.Facebook.BaseDialogListener;
+import net.supudo.apps.aBombaJob.SocNet.Facebook.BaseRequestListener;
+import net.supudo.apps.aBombaJob.SocNet.Facebook.SessionEvents;
+import net.supudo.apps.aBombaJob.SocNet.Facebook.SessionStore;
+import net.supudo.apps.aBombaJob.SocNet.Facebook.SessionEvents.AuthListener;
+import net.supudo.apps.aBombaJob.Synchronization.SyncManager;
+import net.supudo.apps.aBombaJob.Synchronization.SyncManager.SyncManagerCallbacks;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,22 +28,35 @@ import com.facebook.android.AsyncFacebookRunner;
 import com.facebook.android.Facebook;
 import com.facebook.android.FacebookError;
 import com.facebook.android.Util;
-import com.supudo.net.apps.aBombaJob.R;
 
+import net.supudo.apps.aBombaJob.R;
+
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Html;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class OfferDetails extends MainActivity {
+public class OfferDetails extends MainActivity implements Runnable, SyncManagerCallbacks {
 
 	private Integer offerID;
 	private DataHelper dbHelper;
 	private JobOfferModel jobOffer;
+	private SyncManager syncManager;
+	private ProgressDialog loadingDialog;
 
     private Button fbPostButton, twitterPostButton, emailPostButton;
 	private TextView txtTitle, txtCategory, txtDate, txtPositivismTitle, txtNegativismTitle;
@@ -47,6 +64,29 @@ public class OfferDetails extends MainActivity {
 
     private Facebook engineFacebook;
     private AsyncFacebookRunner fbAsyncRunner;
+    
+    private String offerDate, fromEmail, toEmail;
+	
+	private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+        	loadingDialog.dismiss();
+        	
+        	if (msg.getData().isEmpty()) {
+        		Toast.makeText(getApplicationContext(), R.string.message_sent, Toast.LENGTH_SHORT).show();
+        		goBack();
+        	}
+        	else {
+        		AlertDialog.Builder alertbox = new AlertDialog.Builder(OfferDetails.this);
+        		alertbox.setMessage(msg.getData().getString("exception"));
+        		alertbox.setNeutralButton(R.string.close_alertbox, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                    }
+                });
+                alertbox.show();
+        	}
+        }
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +95,9 @@ public class OfferDetails extends MainActivity {
 		
 		if (dbHelper == null)
 			dbHelper = new DataHelper(this);
+
+		if (syncManager == null)
+			syncManager = new SyncManager(this, this);
 
 		fbPostButton = (Button)findViewById(R.id.facebook_post);
 		twitterPostButton = (Button)findViewById(R.id.twitter_post);
@@ -77,7 +120,21 @@ public class OfferDetails extends MainActivity {
 
         fbPostButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	postOnWall();
+            	PostOnFacebook();
+            }
+        });
+
+        twitterPostButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                //Intent intent = new Intent().setClass(OfferDetails.this, TwitterBox.class);
+        		//startActivity(intent);
+            	PostOnTwitter();
+            }
+        });
+
+        emailPostButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	SendEmail();
             }
         });
 	}
@@ -123,20 +180,34 @@ public class OfferDetails extends MainActivity {
 				pDate += cal.get(Calendar.DAY_OF_MONTH);
 
 				String monthLabel = "monthsLong_" + month;
-				pDate += " " + (String) this.getResources().getText(this.getResources().getIdentifier(monthLabel, "string", "com.supudo.net.apps.aBombaJob"));
+				pDate += " " + (String) this.getResources().getText(this.getResources().getIdentifier(monthLabel, "string", "net.supudo.apps.aBombaJob"));
 				
 				pDate += " " + cal.get(Calendar.YEAR);
 			}
 			catch (ParseException e) {
 				Log.d("OfferDetails", "Date parser failed - " + jobOffer.PublishDate);
 			}
+			offerDate = pDate;
 			txtDate.setText(pDate);
 		}
 	}
 
 	@Override
 	protected void onPause() {
+		if (syncManager != null) {
+			syncManager.cancel();
+			syncManager = null;
+		}
 		super.onPause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		if (syncManager != null) {
+			syncManager.cancel();
+			syncManager = null;
+		}
+		super.onDestroy();
 	}
 
     @Override
@@ -146,11 +217,114 @@ public class OfferDetails extends MainActivity {
 
 	/* ------------------------------------------
 	 * 
+	 * Web-services
+	 * 
+	 * ------------------------------------------
+	 */
+	@Override
+	public void syncFinished() {
+		handler.handleMessage(handler.obtainMessage());
+	}
+
+	@Override
+	public void onSyncProgress(int progress) {
+	}
+
+	@Override
+	public void onSyncError(Exception ex) {
+		Log.d("OfferDetails", ex.getMessage());
+		Message msg = handler.obtainMessage(); 
+        Bundle b = new Bundle();
+        b.putString("exception", ex.getMessage()); 
+        msg.setData(b); 
+        handler.handleMessage(msg);
+	}
+    
+    private void goBack() {
+    	Timer timer = new Timer();
+        timer.schedule( new TimerTask(){
+           public void run() { 
+       			OfferDetails.this.onBackPressed();
+            }
+         }, 2000);
+    }
+	
+	public void run() {
+		syncManager.SendEmail(jobOffer.OfferID, fromEmail, toEmail);
+	}
+
+	/* ------------------------------------------
+	 * 
+	 * Email
+	 * 
+	 * ------------------------------------------
+	 */
+    private void SendEmail() {
+    	if (CommonSettings.stInAppEmail) {
+	    	try {
+		        String emailBody = "";
+		        emailBody += jobOffer.CategoryTitle + "<br /><br />";
+		        emailBody += "<b>" + jobOffer.Title + "</b><br /><br />";
+		        emailBody += "<i>" + offerDate + "</i><br /><br />";
+		        emailBody += getString(R.string.odetails_Freelance) + " " + getString(((jobOffer.FreelanceYn) ? R.string.yes : R.string.no)) + "<br /><br />";
+		        if (jobOffer.HumanYn) {
+		            emailBody += "<b>" + getString(R.string.odetails_Human_Positiv) + "</b> " + jobOffer.Positivism + "<br /><br />";
+		            emailBody += "<b>" + getString(R.string.odetails_Human_Negativ) + "</b> " + jobOffer.Negativism + "<br /><br />";
+		        }
+		        else {
+		            emailBody += "<b>" + getString(R.string.odetails_Company_Positiv) + "</b> " + jobOffer.Positivism + "<br /><br />";
+		            emailBody += "<b>" + getString(R.string.odetails_Company_Negativ) + "</b> " + jobOffer.Negativism + "<br /><br />";
+		        }
+		        emailBody += "<br /><br /> Sent from BombaJob ...";
+		        
+		        final Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"));
+		        emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
+		        emailIntent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(emailBody));
+		        startActivity(emailIntent);
+	    	}
+	    	catch (ActivityNotFoundException noEmailEx) {
+	    		Toast.makeText(OfferDetails.this, R.string.email_noclient, Toast.LENGTH_LONG).show();
+	    	}
+	    	catch (Exception ex) {
+	    		Toast.makeText(OfferDetails.this, R.string.generic_error, Toast.LENGTH_LONG).show();
+	    	}
+    	}
+    	else {
+    		LayoutInflater factory = LayoutInflater.from(this);
+    		final View textEntryView = factory.inflate(R.layout.alert_send_message, null);
+    		AlertDialog d = new AlertDialog.Builder(OfferDetails.this)
+            	.setTitle(R.string.send_message)
+            	.setView(textEntryView)
+            	.setPositiveButton(R.string.message_btn_send, new DialogInterface.OnClickListener() {
+            		public void onClick(DialogInterface dialog, int whichButton) {
+            			fromEmail = ((EditText)textEntryView.findViewById(R.id.fromEmail_edit)).getText().toString();
+            			toEmail = ((EditText)textEntryView.findViewById(R.id.toEmail_edit)).getText().toString();
+            			loadingDialog = ProgressDialog.show(OfferDetails.this, "", getString(R.string.sending), true);
+            	    	Thread thread = new Thread(OfferDetails.this);
+            	        thread.run();
+            		}
+            	})
+            	.create();
+    		d.show();
+    	}
+    }
+
+	/* ------------------------------------------
+	 * 
+	 * Twitter
+	 * 
+	 * ------------------------------------------
+	 */
+    private void PostOnTwitter() {
+    }
+    
+	/* ------------------------------------------
+	 * 
 	 * Facebook
 	 * 
 	 * ------------------------------------------
 	 */
-	public void postOnWall() {
+	private void PostOnFacebook() {
          try {
         	 String response = engineFacebook.request("me");
         	 
@@ -215,11 +389,4 @@ public class OfferDetails extends MainActivity {
         	Toast.makeText(OfferDetails.this, R.string.facebook_publishok, Toast.LENGTH_LONG).show();
         }
     }
-
-	/* ------------------------------------------
-	 * 
-	 * Twitter
-	 * 
-	 * ------------------------------------------
-	 */
 }

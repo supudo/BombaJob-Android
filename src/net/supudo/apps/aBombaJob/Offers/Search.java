@@ -4,7 +4,9 @@ import net.supudo.apps.aBombaJob.CommonSettings;
 import net.supudo.apps.aBombaJob.MainActivity;
 import net.supudo.apps.aBombaJob.Synchronization.SyncManager;
 import net.supudo.apps.aBombaJob.Synchronization.SyncManager.SyncManagerCallbacks;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,7 +21,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 public class Search extends MainActivity implements Runnable, SyncManagerCallbacks {
 	
@@ -38,8 +40,15 @@ public class Search extends MainActivity implements Runnable, SyncManagerCallbac
         	
         	if (msg.getData().isEmpty())
         		OpenResults();
-        	else
-        		ProgressDialog.show(Search.this, "", msg.getData().getString("exception"), true);
+        	else {
+        		AlertDialog.Builder alertbox = new AlertDialog.Builder(Search.this);
+        		alertbox.setMessage(msg.getData().getString("exception"));
+        		alertbox.setNeutralButton(R.string.close_alertbox, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                    }
+                });
+                alertbox.show();
+        	}
         }
 	};
 

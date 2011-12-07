@@ -1,6 +1,6 @@
 package net.supudo.apps.aBombaJob;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 import android.app.Activity;
 import android.content.Intent;

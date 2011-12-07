@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import net.supudo.apps.aBombaJob.Database.Models.CategoryModel;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class CategoriesAdapter  extends ArrayAdapter<CategoryModel> {
+public class CategoriesAdapter extends ArrayAdapter<CategoryModel> {
 
 	private LayoutInflater mInflater;
 	private ArrayList<CategoryModel> items;

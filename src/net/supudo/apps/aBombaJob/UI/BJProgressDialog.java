@@ -1,6 +1,6 @@
 package net.supudo.apps.aBombaJob.UI;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.ViewGroup.LayoutParams;

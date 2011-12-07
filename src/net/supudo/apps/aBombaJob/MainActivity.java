@@ -9,7 +9,7 @@ import net.supudo.apps.aBombaJob.Offers.SearchJobs;
 import net.supudo.apps.aBombaJob.Offers.SearchPeople;
 import net.supudo.apps.aBombaJob.Post.Post;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 import android.app.Activity;
 import android.content.Intent;

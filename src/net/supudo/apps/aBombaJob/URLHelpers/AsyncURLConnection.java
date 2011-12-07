@@ -36,7 +36,7 @@ public class AsyncURLConnection extends AsyncTask<URL, Long, ByteArrayBuffer> {
 			ByteArrayBuffer baf = new ByteArrayBuffer(50);
 			int current = 0;
 			long curLength = 0;
-			while((current = bif.read()) != -1) {
+			while ((current = bif.read()) != -1) {
 				baf.append((byte) current);
 				if (isCancelled())
 					return null;

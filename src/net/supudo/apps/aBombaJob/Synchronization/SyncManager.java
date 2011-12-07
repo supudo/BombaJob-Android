@@ -9,6 +9,7 @@ import net.supudo.apps.aBombaJob.URLHelpers.URLHelper;
 import net.supudo.apps.aBombaJob.URLHelpers.URLHelperCallbacks;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.ContentValues;
@@ -17,7 +18,6 @@ import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-
 
 public class SyncManager implements URLHelperCallbacks {
 
@@ -181,6 +181,42 @@ public class SyncManager implements URLHelperCallbacks {
 		}
 	}
 
+	public void PostMessage(Integer offerID, String message) {
+		try {
+			Log.d("Sync", "PostMessage ... ");
+			this.postOfferMessage(offerID, message);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			Log.d("Sync", "PostMessage error - " + e.getMessage());
+			mDelegate.onSyncError(e);
+		}
+	}
+
+	public void SendEmail(Integer offerID, String fromEmail, String toEmail) {
+		try {
+			Log.d("Sync", "SendEmail ... ");
+			this.sendEmailOffer(offerID, fromEmail, toEmail);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			Log.d("Sync", "SendEmail error - " + e.getMessage());
+			mDelegate.onSyncError(e);
+		}
+	}
+	
+	public void PostOffer(boolean pHumanYn, int pFreelance, int pCategoryID, String valTitle, String valEmail, String valPositiv, String valNegativ) {
+		try {
+			Log.d("Sync", "PostOffer ... ");
+			this.postOffer(pHumanYn, pFreelance, pCategoryID, valTitle, valEmail, valPositiv, valNegativ);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			Log.d("Sync", "PostOffer error - " + e.getMessage());
+			mDelegate.onSyncError(e);
+		}
+	}
+
 	/* ------------------------------------------
 	 * 
 	 * Workers
@@ -225,6 +261,18 @@ public class SyncManager implements URLHelperCallbacks {
 			else if (serviceId == WebServiceID.SEARCH_SERVICE) {
 				Log.d("Sync", "updateModelWithJSONObject ... search");
 				this.handleOffers(object, "searchOffers", WebServiceID.SEARCH_SERVICE);
+			}
+			else if (serviceId == WebServiceID.POSTMESSAGE_SERVICE) {
+				Log.d("Sync", "updateModelWithJSONObject ... post message - " + object.toString());
+				mDelegate.syncFinished();
+			}
+			else if (serviceId == WebServiceID.SENDEMAIL_SERVICE) {
+				Log.d("Sync", "updateModelWithJSONObject ... send offer email - " + object.toString());
+				mDelegate.syncFinished();
+			}
+			else if (serviceId == WebServiceID.POSTOFFER_SERVICE) {
+				Log.d("Sync", "updateModelWithJSONObject ... send offer - " + object.toString());
+				mDelegate.onSyncError(new Exception(object.toString()));
 			}
 		}
 		catch (NotFoundException e) {
@@ -301,7 +349,41 @@ public class SyncManager implements URLHelperCallbacks {
 		Log.d("Sync", CommonSettings.BASE_SERVICES_URL + ServicesNames.SEARCH_SERVICE + "&keyword=" + searchKeyword + "&freelance=" + searchForFreelance);
 		urlHelper.loadURLString(CommonSettings.BASE_SERVICES_URL + ServicesNames.SEARCH_SERVICE + "&keyword=" + searchKeyword + "&freelance=" + searchForFreelance, WebServiceID.SEARCH_SERVICE);
 	}
+
+	private void postOfferMessage(Integer oid, String msg) throws MalformedURLException, NotFoundException, JSONException {
+		this.state = ServicesNames.POSTMESSAGE_SERVICE;
+		Log.d("Sync", CommonSettings.BASE_SERVICES_URL + ServicesNames.POSTMESSAGE_SERVICE + "&oid=" + oid);
+		JSONObject obj = new JSONObject();
+		obj.put("msg", msg);
+		String postData = obj.toString();
+		urlHelper.postData(CommonSettings.BASE_SERVICES_URL + ServicesNames.POSTMESSAGE_SERVICE + "&oid=" + oid, postData, WebServiceID.POSTMESSAGE_SERVICE);
+	}
 	
+	private void sendEmailOffer(Integer oid, String fromEmail, String toEmail) throws JSONException, MalformedURLException {
+		this.state = ServicesNames.SENDEMAIL_SERVICE;
+		Log.d("Sync", CommonSettings.BASE_SERVICES_URL + ServicesNames.SENDEMAIL_SERVICE + "&oid=" + oid);
+		JSONObject obj = new JSONObject();
+		obj.put("from", fromEmail);
+		obj.put("to", toEmail);
+		String postData = obj.toString();
+		urlHelper.postData(CommonSettings.BASE_SERVICES_URL + ServicesNames.SENDEMAIL_SERVICE + "&oid=" + oid, postData, WebServiceID.SENDEMAIL_SERVICE);
+	}
+	
+	public void postOffer(boolean pHumanYn, int pFreelance, int pCategoryID, String valTitle, String valEmail, String valPositiv, String valNegativ) throws MalformedURLException, NotFoundException, JSONException {
+		this.state = ServicesNames.POSTOFFER_SERVICE;
+		Log.d("Sync", CommonSettings.BASE_SERVICES_URL + ServicesNames.POSTOFFER_SERVICE);
+		JSONObject obj = new JSONObject();
+		obj.put("h", pHumanYn);
+		obj.put("fr", pFreelance);
+		obj.put("cid", pCategoryID);
+		obj.put("tt", valTitle);
+		obj.put("em", valEmail);
+		obj.put("pos", valPositiv);
+		obj.put("neg", valNegativ);
+		String postData = obj.toString();
+		urlHelper.postData(CommonSettings.BASE_SERVICES_URL + ServicesNames.POSTOFFER_SERVICE, postData, WebServiceID.POSTOFFER_SERVICE);
+	}
+
 	/* ------------------------------------------
 	 * 
 	 * Synchronization Data

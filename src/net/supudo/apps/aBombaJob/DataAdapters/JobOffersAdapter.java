@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 public class JobOffersAdapter extends ArrayAdapter<JobOfferModel> {
 
@@ -73,14 +73,14 @@ public class JobOffersAdapter extends ArrayAdapter<JobOfferModel> {
 			int month = date.getMonth() + 1;
 
 			String weekdayLabel = "weekday_" + date.getDay();
-			osubtitle += (String) this.context.getResources().getText(this.context.getResources().getIdentifier(weekdayLabel, "string", "com.supudo.net.apps.aBombaJob"));
+			osubtitle += (String) this.context.getResources().getText(this.context.getResources().getIdentifier(weekdayLabel, "string", "net.supudo.apps.aBombaJob"));
 
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(date);
 			osubtitle += ", " + cal.get(Calendar.DAY_OF_MONTH);
 
 			String monthLabel = "monthsShort_" + month;
-			osubtitle += " " + (String) this.context.getResources().getText(this.context.getResources().getIdentifier(monthLabel, "string", "com.supudo.net.apps.aBombaJob"));
+			osubtitle += " " + (String) this.context.getResources().getText(this.context.getResources().getIdentifier(monthLabel, "string", "net.supudo.apps.aBombaJob"));
 		}
 		catch (ParseException e) {
 			Log.d("NewestOffers", "Date parser failed - " + off.PublishDate);

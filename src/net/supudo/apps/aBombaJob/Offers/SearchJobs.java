@@ -1,6 +1,6 @@
 package net.supudo.apps.aBombaJob.Offers;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 import android.app.TabActivity;
 import android.content.Intent;

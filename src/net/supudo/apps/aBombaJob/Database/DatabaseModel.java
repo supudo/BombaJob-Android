@@ -80,7 +80,7 @@ public class DatabaseModel extends SQLiteOpenHelper {
 	}
 	
 	private void InitSettings(SQLiteDatabase db) {
-		String[] settings = new String[7];
+		String[] settings = new String[8];
 		settings[0] = "StorePrivateData|TRUE|1";
 		settings[1] = "SendGeo|FALSE|1";
 		settings[2] = "InitSync|TRUE|1";
@@ -88,6 +88,7 @@ public class DatabaseModel extends SQLiteOpenHelper {
 		settings[4] = "InAppEmail|FALSE|1";
 		settings[5] = "ShowCategories|TRUE|1";
 		settings[6] = "lastSyncDate| |0";
+		settings[7] = "PrivateData_Email| |0";
 
 		ContentValues cv;
 		for (int i=0; i<settings.length; i++) {

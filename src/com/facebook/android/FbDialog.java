@@ -37,16 +37,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.facebook.android.Facebook.DialogListener;
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 public class FbDialog extends Dialog {
 
     static final int FB_BLUE = 0xFF6D84B4;
     static final float[] DIMENSIONS_DIFF_LANDSCAPE = {20, 60};
     static final float[] DIMENSIONS_DIFF_PORTRAIT = {40, 60};
-    static final FrameLayout.LayoutParams FILL =
-        new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                         ViewGroup.LayoutParams.FILL_PARENT);
+    static final FrameLayout.LayoutParams FILL = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT);
     static final int MARGIN = 4;
     static final int PADDING = 2;
     static final String DISPLAY_STRING = "touch";

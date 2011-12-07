@@ -5,4 +5,102 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
   android:background="@drawable/bgpattern">
+	
+	<ScrollView android:id="@+id/scroller"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_margin="5dp">
+
+	    <LinearLayout
+	        xmlns:android="http://schemas.android.com/apk/res/android"
+	        android:orientation="vertical"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent">
+	    
+		    <Spinner
+		        android:id="@+id/human_yn"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:textColor="#FF8D00"
+		        android:prompt="@string/post_HumanCompany_Choice" />
+	
+	        <Spinner
+	            android:id="@+id/category"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:textColor="#FF8D00"
+	            android:prompt="@string/post_Category_Human" />
+	
+	        <Spinner
+	            android:id="@+id/freelance"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:textColor="#FF8D00"
+	            android:prompt="@string/post_Freelance" />
+	
+	        <TextView
+	            android:id="@+id/lbl_title"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:text="@string/post_Human_Title"
+	            android:textAppearance="?android:attr/textAppearanceLarge" />
+	
+	        <EditText
+	            android:id="@+id/txt_title"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content">
+	            <requestFocus />
+	        </EditText>
+	
+	        <TextView
+	            android:id="@+id/lbl_email"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:text="@string/post_Human_Email"
+	            android:textAppearance="?android:attr/textAppearanceLarge" />
+	
+	        <EditText
+	            android:id="@+id/txt_email"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content">
+	            <requestFocus />
+	        </EditText>
+	
+	        <TextView
+	            android:id="@+id/lbl_positiv"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:text="@string/post_Human_Positiv"
+	            android:textAppearance="?android:attr/textAppearanceLarge" />
+	
+	        <EditText
+	            android:id="@+id/txt_positiv"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content">
+	            <requestFocus />
+	        </EditText>
+	
+	        <TextView
+	            android:id="@+id/lbl_negativ"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:text="@string/post_Human_Negativ"
+	            android:textAppearance="?android:attr/textAppearanceLarge" />
+	
+	        <EditText
+	            android:id="@+id/txt_negativ"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content">
+	            <requestFocus />
+	        </EditText>
+	
+	        <Button android:id="@+id/btn_post"
+	            android:layout_width="fill_parent" android:layout_height="wrap_content"
+	            android:background="@drawable/btnboom" android:text="@string/post_Button"
+	            android:textColor="#FF8D00" android:textSize="28sp" />
+	
+	    </LinearLayout>
+
+    </ScrollView>
+
 </LinearLayout>

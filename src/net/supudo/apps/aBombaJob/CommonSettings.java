@@ -26,9 +26,10 @@ public class CommonSettings {
 	public static boolean ShowBanners = false;
 	public static String DefaultDateFormat = "yyyy-MM-dd HH:mm:ss";
 	
-	public static String GoogleAddsAppID = "";
-	public static String FacebookAppID = "";
-	public static String FacebookAuthToken = "";
+	public static String GoogleAddsAppID = "a14eb7e357a4b8c";
+	public static String FacebookAppID = "162884250446512";
+	public static String TwitterConsumerKey = "OVvHQ1wio8LZklS5mRUuA", TwitterConsumerSecret = "zZm0RsfzkLpF3FYnxcM3BDZdxHA6sPLoPiTcBvohUEo";
+	public static String TwitterToken = "", TwitterTokenSecret = "";
 	
 	public static boolean reloadNewestOffers = true, reloadSearchJobs = true;
 	public static boolean reloadSearchPeople = true, reloadSearch = true;

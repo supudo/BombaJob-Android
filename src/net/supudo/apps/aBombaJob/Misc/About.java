@@ -4,7 +4,7 @@ import net.supudo.apps.aBombaJob.MainActivity;
 import net.supudo.apps.aBombaJob.Database.DataHelper;
 import net.supudo.apps.aBombaJob.Database.Models.TextContentModel;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 import android.os.Bundle;
 import android.webkit.WebView;

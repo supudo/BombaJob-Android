@@ -21,7 +21,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 public class SearchResults extends TableActivity {
 	

@@ -11,12 +11,17 @@ import net.supudo.apps.aBombaJob.Database.Models.JobOfferModel;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -29,6 +34,7 @@ public class NewestOffers extends TableActivity {
 	private AdView adView;
 	private TextView txtEmpty;
 	private DataHelper dbHelper;
+	private ListView listView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,16 +62,16 @@ public class NewestOffers extends TableActivity {
 		else {
 			setListAdapter(new NewestOffersAdapter(NewestOffers.this, R.layout.list_item, listItems));
 
-			ListView lv = getListView();
-    		lv.setTextFilterEnabled(true);
+			listView = getListView();
+			listView.setTextFilterEnabled(true);
+    		registerForContextMenu(listView);
 
-			lv.setTextFilterEnabled(true);
-			lv.setOnItemClickListener(new OnItemClickListener() {
+    		listView.setTextFilterEnabled(true);
+    		listView.setOnItemClickListener(new OnItemClickListener() {
     			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    				Toast.makeText(getApplicationContext(), ((TextView)view.findViewById(R.id.title)).getText(), Toast.LENGTH_SHORT).show();
-    				Intent intent = new Intent().setClass(NewestOffers.this, OfferDetails.class);
-    				intent.putExtra("offerid", (Integer)((TextView)view.findViewById(R.id.title)).getTag());
-    				startActivity(intent);
+    				Integer oid = (Integer)((TextView)view.findViewById(R.id.title)).getTag();
+    				String title = ((TextView)view.findViewById(R.id.title)).getText().toString(); 
+    				ViewOffer(oid, title);
     			}
     		});
 		}
@@ -90,7 +96,53 @@ public class NewestOffers extends TableActivity {
 		super.onDestroy();
 	}
 	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.offers_context_menu, menu);
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		JobOfferModel off = (JobOfferModel)listItems.get((int)info.id);
+		switch (item.getItemId()) {
+			case R.id.view:
+				ViewOffer(off.OfferID, off.Title);
+				return true;
+			case R.id.sendmessage:
+				SendMessage(off.OfferID, off.Title);
+				return true;
+			case R.id.markread:
+				MarkAsRead(off.OfferID);
+				return true;
+			default:
+				return super.onContextItemSelected(item);
+		}
+	}
+	
 	private void reloadItems() {
 		listItems = dbHelper.selectNewestJobOffers();
+	}
+	
+	private void ViewOffer(Integer oid, String title) {
+		Toast.makeText(getApplicationContext(), title, Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent().setClass(NewestOffers.this, OfferDetails.class);
+		intent.putExtra("offerid", oid);
+		startActivity(intent);
+	}
+	
+	private void SendMessage(Integer oid, String title) {
+		Toast.makeText(getApplicationContext(), title, Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent().setClass(NewestOffers.this, SendMessage.class);
+		intent.putExtra("offerid", oid);
+		startActivity(intent);
+	}
+	
+	private void MarkAsRead(Integer oid) {
+		dbHelper.setOfferReadYn(oid);
+    	reloadItems();
+    	setListAdapter(new NewestOffersAdapter(NewestOffers.this, R.layout.list_item, listItems));
 	}
 }

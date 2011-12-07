@@ -7,7 +7,7 @@ import net.supudo.apps.aBombaJob.DataAdapters.SettingsAdapter;
 import net.supudo.apps.aBombaJob.Database.DataHelper;
 import net.supudo.apps.aBombaJob.Database.Models.SettingModel;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 import android.os.Bundle;
 import android.widget.ListView;

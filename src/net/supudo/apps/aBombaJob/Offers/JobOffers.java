@@ -13,16 +13,23 @@ import net.supudo.apps.aBombaJob.Synchronization.SyncManager.SyncManagerCallback
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -47,8 +54,15 @@ public class JobOffers extends TableActivity implements Runnable, SyncManagerCal
         	
         	if (msg.getData().isEmpty())
         		LoadOffers();
-        	else
-        		ProgressDialog.show(JobOffers.this, "", msg.getData().getString("exception"), true);
+        	else {
+        		AlertDialog.Builder alertbox = new AlertDialog.Builder(JobOffers.this);
+        		alertbox.setMessage(msg.getData().getString("exception"));
+        		alertbox.setNeutralButton(R.string.close_alertbox, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                    }
+                });
+                alertbox.show();
+        	}
         }
 	};
 
@@ -143,6 +157,32 @@ public class JobOffers extends TableActivity implements Runnable, SyncManagerCal
         handler.handleMessage(msg);
 	}
 	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.offers_context_menu, menu);
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		JobOfferModel off = (JobOfferModel)listItems.get((int)info.id);
+		switch (item.getItemId()) {
+			case R.id.view:
+				ViewOffer(off.OfferID, off.Title);
+				return true;
+			case R.id.sendmessage:
+				SendMessage(off.OfferID, off.Title);
+				return true;
+			case R.id.markread:
+				MarkAsRead(off.OfferID);
+				return true;
+			default:
+				return super.onContextItemSelected(item);
+		}
+	}
+	
 	public void run() {
 		if (humanYn)
 			syncManager.GetSearchPeople();
@@ -177,15 +217,35 @@ public class JobOffers extends TableActivity implements Runnable, SyncManagerCal
 
     		ListView lv = getListView();
     		lv.setTextFilterEnabled(true);
+    		registerForContextMenu(lv);
 
     		lv.setOnItemClickListener(new OnItemClickListener() {
     			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    				Toast.makeText(getApplicationContext(), ((TextView)view.findViewById(R.id.title)).getText(), Toast.LENGTH_SHORT).show();
-    				Intent intent = new Intent().setClass(JobOffers.this, OfferDetails.class);
-    				intent.putExtra("offerid", (Integer)((TextView)view.findViewById(R.id.title)).getTag());
-    				startActivity(intent);
+    				Integer oid = (Integer)((TextView)view.findViewById(R.id.title)).getTag();
+    				String title = ((TextView)view.findViewById(R.id.title)).getText().toString(); 
+    				ViewOffer(oid, title);
     			}
     		});
 		}
+	}
+	
+	private void ViewOffer(Integer oid, String title) {
+		Toast.makeText(getApplicationContext(), title, Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent().setClass(JobOffers.this, OfferDetails.class);
+		intent.putExtra("offerid", oid);
+		startActivity(intent);
+	}
+	
+	private void SendMessage(Integer oid, String title) {
+		Toast.makeText(getApplicationContext(), title, Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent().setClass(JobOffers.this, SendMessage.class);
+		intent.putExtra("offerid", oid);
+		startActivity(intent);
+	}
+	
+	private void MarkAsRead(Integer oid) {
+		dbHelper.setOfferReadYn(oid);
+    	reloadItems();
+    	setListAdapter(new JobOffersAdapter(JobOffers.this, R.layout.list_item, listItems));
 	}
 }

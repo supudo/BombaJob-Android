@@ -352,23 +352,26 @@ public class DataHelper {
 		Cursor c = db.rawQuery(q, null);
 		c.moveToFirst();
 
-		Integer offerID = c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns._ID));
-		Integer categoryID = c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns.CATEGORY_ID));
-		String title = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.TITLE));
-		String categoryTitle = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.CATEGORY_TITLE));
-		String email = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.EMAIL));
-		String negativism = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.NEGATIVISM));
-		String positivism = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.POSITIVISM));
-		String publishDate = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.PUBLISH_DATE));
-		Long publishDateStamp = c.getLong(c.getColumnIndex(DatabaseSchema.JobOffersColumns.PUBLISH_DATE_STAMP));
-		boolean freelanceYn = (c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns.FREELANCE_YN)) == 1);
-		boolean humanYn = (c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns.HUMAN_YN)) == 1);
-		boolean readYn = (c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns.READ_YN)) == 1);
-		boolean sentMessageYn = (c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns.SENTMESSAGE_YN)) == 1);
-		String glat = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.GEO_LATITUDE));
-		String glong = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.GEO_LONGITUDE));
-
-		JobOfferModel model = new JobOfferModel(offerID, categoryID, title, categoryTitle, email, freelanceYn, humanYn, negativism, positivism, publishDate, publishDateStamp, readYn, sentMessageYn, glat, glong);
+		JobOfferModel model = null;
+		if (!c.isNull(c.getColumnIndex(DatabaseSchema.JobOffersColumns._ID))) {
+			Integer offerID = c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns._ID));
+			Integer categoryID = c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns.CATEGORY_ID));
+			String title = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.TITLE));
+			String categoryTitle = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.CATEGORY_TITLE));
+			String email = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.EMAIL));
+			String negativism = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.NEGATIVISM));
+			String positivism = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.POSITIVISM));
+			String publishDate = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.PUBLISH_DATE));
+			Long publishDateStamp = c.getLong(c.getColumnIndex(DatabaseSchema.JobOffersColumns.PUBLISH_DATE_STAMP));
+			boolean freelanceYn = (c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns.FREELANCE_YN)) == 1);
+			boolean humanYn = (c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns.HUMAN_YN)) == 1);
+			boolean readYn = (c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns.READ_YN)) == 1);
+			boolean sentMessageYn = (c.getInt(c.getColumnIndex(DatabaseSchema.JobOffersColumns.SENTMESSAGE_YN)) == 1);
+			String glat = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.GEO_LATITUDE));
+			String glong = c.getString(c.getColumnIndex(DatabaseSchema.JobOffersColumns.GEO_LONGITUDE));
+	
+			model = new JobOfferModel(offerID, categoryID, title, categoryTitle, email, freelanceYn, humanYn, negativism, positivism, publishDate, publishDateStamp, readYn, sentMessageYn, glat, glong);
+		}
 
 		c.close();
 		db.close();

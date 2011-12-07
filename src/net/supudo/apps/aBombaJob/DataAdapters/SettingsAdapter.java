@@ -20,7 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.supudo.net.apps.aBombaJob.R;
+import net.supudo.apps.aBombaJob.R;
 
 public class SettingsAdapter extends ArrayAdapter<SettingModel> {
 
@@ -77,7 +77,7 @@ public class SettingsAdapter extends ArrayAdapter<SettingModel> {
             }
         });
 
-		holder.settingName.setText((String) this.context.getResources().getText(this.context.getResources().getIdentifier("about_" + stt.SName, "string", "com.supudo.net.apps.aBombaJob")));
+		holder.settingName.setText((String) this.context.getResources().getText(this.context.getResources().getIdentifier("about_" + stt.SName, "string", "net.supudo.apps.aBombaJob")));
 
 		holder.settingSwitch.setTag(stt.SName);
 		holder.settingSwitch.setChecked(Boolean.parseBoolean(stt.SValue));
