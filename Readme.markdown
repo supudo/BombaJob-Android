@@ -2,5 +2,5 @@
 
 Official Android application for BombaJob.bg
 
-.. todo
- 
+* Twitter4J // http://twitter4j.org/
+* The Official Facebook SDK for Android // https://github.com/facebook/facebook-android-sdk/
