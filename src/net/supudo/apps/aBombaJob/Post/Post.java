@@ -89,8 +89,8 @@ public class Post extends MainActivity implements Runnable, SyncManagerCallbacks
 		setContentView(R.layout.post);
 		
 		cmbHumanYn = (Spinner)findViewById(R.id.human_yn);
-		cmbFreelanceYn = (Spinner)findViewById(R.id.category);
-		cmbCategory = (Spinner)findViewById(R.id.freelance);
+		cmbFreelanceYn = (Spinner)findViewById(R.id.freelance);
+		cmbCategory = (Spinner)findViewById(R.id.category);
 		txtTitle = (EditText)findViewById(R.id.txt_title);
 		txtEmail = (EditText)findViewById(R.id.txt_email);
 		txtPositiv = (EditText)findViewById(R.id.txt_positiv);
@@ -108,9 +108,14 @@ public class Post extends MainActivity implements Runnable, SyncManagerCallbacks
 
 		if (syncManager == null)
 			syncManager = new SyncManager(this, this);
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
 
 		itemsCategories = dbHelper.selectAllCategory();
-		
+
 		LoadDropdowns();
 		LoadLabels();
 	}
@@ -214,6 +219,7 @@ public class Post extends MainActivity implements Runnable, SyncManagerCallbacks
 		ArrayAdapter<CharSequence> _adapterFreelance = ArrayAdapter.createFromResource(this, R.array.searchFreelance_array, android.R.layout.simple_spinner_item);
 		_adapterFreelance.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		cmbFreelanceYn.setAdapter(_adapterFreelance);
+		//cmbFreelanceYn.setPromptId(R.string.searchFreelance);
 		cmbFreelanceYn.setOnItemSelectedListener(new OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 				pFreelance = pos;

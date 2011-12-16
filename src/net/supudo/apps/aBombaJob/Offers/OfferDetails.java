@@ -17,8 +17,10 @@ import net.supudo.apps.aBombaJob.SocNet.Facebook.BaseRequestListener;
 import net.supudo.apps.aBombaJob.SocNet.Facebook.SessionEvents;
 import net.supudo.apps.aBombaJob.SocNet.Facebook.SessionStore;
 import net.supudo.apps.aBombaJob.SocNet.Facebook.SessionEvents.AuthListener;
+import net.supudo.apps.aBombaJob.SocNet.Twitter.TwitterApp;
 import net.supudo.apps.aBombaJob.Synchronization.SyncManager;
 import net.supudo.apps.aBombaJob.Synchronization.SyncManager.SyncManagerCallbacks;
+import net.supudo.apps.aBombaJob.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,14 +31,24 @@ import com.facebook.android.Facebook;
 import com.facebook.android.FacebookError;
 import com.facebook.android.Util;
 
-import net.supudo.apps.aBombaJob.R;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
+import twitter4j.conf.Configuration;
+import twitter4j.conf.ConfigurationBuilder;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.DialogInterface.OnCancelListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -65,7 +77,18 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
     private Facebook engineFacebook;
     private AsyncFacebookRunner fbAsyncRunner;
     
+	private Twitter engineTwitter;
+	private RequestToken twitterRequestToken = null;
+	private Context twitterContext;
+    
     private String offerDate, fromEmail, toEmail;
+    
+    private enum SocNetOp {
+    	SocNetOpEmail,
+    	SocNetOpTwitter,
+    	SocNetOpFacebook
+    }
+    private SocNetOp selectedOp;
 	
 	private Handler handler = new Handler() {
         @Override
@@ -118,23 +141,21 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
         SessionStore.restore(engineFacebook, this);
         SessionEvents.addAuthListener(new FBAuthListener());
 
-        fbPostButton.setOnClickListener(new OnClickListener() {
+        emailPostButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	PostOnFacebook();
+            	SendEmail();
             }
         });
 
         twitterPostButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                //Intent intent = new Intent().setClass(OfferDetails.this, TwitterBox.class);
-        		//startActivity(intent);
-            	PostOnTwitter();
+            	PostToTwitter();
             }
         });
 
-        emailPostButton.setOnClickListener(new OnClickListener() {
+        fbPostButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	SendEmail();
+            	PostOnFacebook();
             }
         });
 	}
@@ -190,6 +211,10 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
 			offerDate = pDate;
 			txtDate.setText(pDate);
 		}
+		else {
+			Intent intent = new Intent().setClass(OfferDetails.this, NewestOffers.class);
+			startActivity(intent);
+		}
 	}
 
 	@Override
@@ -212,7 +237,36 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	engineFacebook.authorizeCallback(requestCode, resultCode, data);
+    	if (this.selectedOp == SocNetOp.SocNetOpFacebook)
+    		engineFacebook.authorizeCallback(requestCode, resultCode, data);
+    	else if (this.selectedOp == SocNetOp.SocNetOpTwitter) {
+    		if (resultCode == RESULT_OK) {
+    			AccessToken accessToken = null;
+    			try {
+    				accessToken = engineTwitter.getOAuthAccessToken(twitterRequestToken, data.getExtras().getString(CommonSettings.IEXTRA_OAUTH_VERIFIER));
+
+    				SharedPreferences pref = getSharedPreferences(CommonSettings.PREFERENCE_NAME, MODE_PRIVATE);
+    				SharedPreferences.Editor editor = pref.edit();
+    				editor.putString(CommonSettings.PREF_KEY_TOKEN, accessToken.getToken());
+    				editor.putString(CommonSettings.PREF_KEY_SECRET, accessToken.getTokenSecret());
+    				editor.putBoolean(CommonSettings.PREF_KEY_CONNECTED, true);
+    				editor.commit();
+
+    				String tweet = "BombaJob.bg - " + jobOffer.Title;
+    				tweet += " http://bombajob.bg/offer/" + jobOffer.OfferID;
+    				tweet += " #bombajobbg";
+
+    				engineTwitter.setOAuthAccessToken(accessToken);
+    				engineTwitter.updateStatus(tweet);
+    				Toast.makeText(OfferDetails.this, R.string.twitter_publishok, Toast.LENGTH_LONG).show();
+    			}
+    			catch (TwitterException e) {
+    				if (e.getMessage().toString().contains("duplicate"))
+    					Toast.makeText(OfferDetails.this, R.string.twitter_err_duplicate, Toast.LENGTH_LONG).show();
+    				e.printStackTrace();
+    			}
+    		}
+    	}
     }
 
 	/* ------------------------------------------
@@ -260,6 +314,7 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
 	 * ------------------------------------------
 	 */
     private void SendEmail() {
+    	this.selectedOp = SocNetOp.SocNetOpEmail;
     	if (CommonSettings.stInAppEmail) {
 	    	try {
 		        String emailBody = "";
@@ -315,8 +370,72 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
 	 * 
 	 * ------------------------------------------
 	 */
-    private void PostOnTwitter() {
-    }
+	private void PostToTwitter() {
+    	this.selectedOp = SocNetOp.SocNetOpTwitter;
+		PostToTwitterApp();
+	}
+
+	private void PostToTwitterApp() {
+		try {
+			twitterContext = this;
+			new TwitterConnectTask().execute();
+		}
+		catch (Exception e) {
+			Log.e("OfferDetails", e.getMessage());
+			Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private void connectTwitter() {
+		ConfigurationBuilder confbuilder = new ConfigurationBuilder();
+		Configuration conf = confbuilder.setOAuthConsumerKey(CommonSettings.TwitterConsumerKey).setOAuthConsumerSecret(CommonSettings.TwitterConsumerSecret).build();
+
+		engineTwitter = new TwitterFactory(conf).getInstance();
+		engineTwitter.setOAuthAccessToken(null);
+
+		try {
+			twitterRequestToken = engineTwitter.getOAuthRequestToken(CommonSettings.TwitterCallbackURI);
+			Intent intent = new Intent(this, TwitterApp.class);
+			intent.putExtra(CommonSettings.IEXTRA_AUTH_URL, twitterRequestToken.getAuthorizationURL());
+			this.startActivityForResult(intent, 0);
+		}
+		catch (TwitterException e) {
+			Toast.makeText(OfferDetails.this, "Errror : " + e.getStatusCode(), Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private class TwitterConnectTask extends AsyncTask<Void, Void, Void> {
+		private ProgressDialog progressDialog;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			progressDialog = new ProgressDialog(twitterContext);
+			progressDialog.setMessage(twitterContext.getString(R.string.twitter_initializing));
+			progressDialog.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					cancel(false);
+				}
+			});
+			progressDialog.show();
+		}
+
+		@Override
+		protected Void doInBackground(Void... v) {
+			connectTwitter();
+			return (Void)null;
+		}
+
+		@Override
+		protected void onProgressUpdate(Void... v) {
+		}
+
+		@Override
+		protected void onPostExecute(Void v) {
+			progressDialog.dismiss();
+		}
+	}
     
 	/* ------------------------------------------
 	 * 
@@ -325,6 +444,7 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
 	 * ------------------------------------------
 	 */
 	private void PostOnFacebook() {
+    	this.selectedOp = SocNetOp.SocNetOpFacebook;
          try {
         	 String response = engineFacebook.request("me");
         	 
@@ -359,7 +479,6 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
         public void onAuthSucceed() {
         	SessionStore.save(engineFacebook, OfferDetails.this);
         }
-
         public void onAuthFail(String error) {
         }
     }
@@ -373,20 +492,40 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
     }
 
     public class FBWallPostRequestListener extends BaseRequestListener {
-
         public void onComplete(final String response, final Object state) {
             try {
+            	Log.d("OfferDetails", "Facebook response - " + response);
                 JSONObject json = Util.parseJson(response);
                 String message = json.getString("message");
                 Log.d("OfferDetails", "Facebook post success - " + message);
             }
             catch (JSONException e) {
-            	Toast.makeText(OfferDetails.this, R.string.facebook_publisherror, Toast.LENGTH_LONG).show();
+            	e.printStackTrace();
+            	OfferDetails.this.runOnUiThread(
+        			new Runnable() {
+        				public void run() {
+        	            	Toast.makeText(OfferDetails.this, R.string.facebook_publisherror, Toast.LENGTH_LONG).show();
+        				}
+        			}
+            	);
             }
             catch (FacebookError e) {
-            	Toast.makeText(OfferDetails.this, R.string.facebook_publisherror, Toast.LENGTH_LONG).show();
+            	e.printStackTrace();
+            	OfferDetails.this.runOnUiThread(
+        			new Runnable() {
+        				public void run() {
+        					Toast.makeText(OfferDetails.this, R.string.facebook_responseerror, Toast.LENGTH_LONG).show();
+        				}
+        			}
+            	);
             }
-        	Toast.makeText(OfferDetails.this, R.string.facebook_publishok, Toast.LENGTH_LONG).show();
+        	OfferDetails.this.runOnUiThread(
+    			new Runnable() {
+    				public void run() {
+    		        	Toast.makeText(OfferDetails.this, R.string.facebook_publishok, Toast.LENGTH_LONG).show();
+    				}
+    			}
+        	);
         }
     }
 }

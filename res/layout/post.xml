@@ -23,6 +23,13 @@
 		        android:layout_height="wrap_content"
 		        android:textColor="#FF8D00"
 		        android:prompt="@string/post_HumanCompany_Choice" />
+    
+            <Spinner
+                android:id="@+id/freelance"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#FF8D00"
+                android:prompt="@string/searchFreelance" />
 	
 	        <Spinner
 	            android:id="@+id/category"
@@ -31,25 +38,18 @@
 	            android:textColor="#FF8D00"
 	            android:prompt="@string/post_Category_Human" />
 	
-	        <Spinner
-	            android:id="@+id/freelance"
-	            android:layout_width="fill_parent"
-	            android:layout_height="wrap_content"
-	            android:textColor="#FF8D00"
-	            android:prompt="@string/post_Freelance" />
-	
 	        <TextView
 	            android:id="@+id/lbl_title"
 	            android:layout_width="fill_parent"
 	            android:layout_height="wrap_content"
 	            android:text="@string/post_Human_Title"
-	            android:textAppearance="?android:attr/textAppearanceLarge" />
+	            android:textAppearance="?android:attr/textAppearanceMedium" />
 	
 	        <EditText
 	            android:id="@+id/txt_title"
 	            android:layout_width="fill_parent"
 	            android:layout_height="wrap_content">
-	            <requestFocus />
+                <requestFocus />
 	        </EditText>
 	
 	        <TextView
@@ -57,42 +57,36 @@
 	            android:layout_width="fill_parent"
 	            android:layout_height="wrap_content"
 	            android:text="@string/post_Human_Email"
-	            android:textAppearance="?android:attr/textAppearanceLarge" />
+	            android:textAppearance="?android:attr/textAppearanceMedium" />
 	
 	        <EditText
 	            android:id="@+id/txt_email"
 	            android:layout_width="fill_parent"
-	            android:layout_height="wrap_content">
-	            <requestFocus />
-	        </EditText>
+	            android:layout_height="wrap_content" />
 	
 	        <TextView
 	            android:id="@+id/lbl_positiv"
 	            android:layout_width="fill_parent"
 	            android:layout_height="wrap_content"
 	            android:text="@string/post_Human_Positiv"
-	            android:textAppearance="?android:attr/textAppearanceLarge" />
+	            android:textAppearance="?android:attr/textAppearanceMedium" />
 	
 	        <EditText
 	            android:id="@+id/txt_positiv"
 	            android:layout_width="fill_parent"
-	            android:layout_height="wrap_content">
-	            <requestFocus />
-	        </EditText>
+	            android:layout_height="wrap_content" />
 	
 	        <TextView
 	            android:id="@+id/lbl_negativ"
 	            android:layout_width="fill_parent"
 	            android:layout_height="wrap_content"
 	            android:text="@string/post_Human_Negativ"
-	            android:textAppearance="?android:attr/textAppearanceLarge" />
+	            android:textAppearance="?android:attr/textAppearanceMedium" />
 	
 	        <EditText
 	            android:id="@+id/txt_negativ"
 	            android:layout_width="fill_parent"
-	            android:layout_height="wrap_content">
-	            <requestFocus />
-	        </EditText>
+	            android:layout_height="wrap_content" />
 	
 	        <Button android:id="@+id/btn_post"
 	            android:layout_width="fill_parent" android:layout_height="wrap_content"
