@@ -209,7 +209,21 @@ public class JobOffers extends TableActivity implements Runnable, SyncManagerCal
 	
 	private void LoadOffers() {
 		reloadItems();
-		
+
+		try {
+			if (humanYn) {
+				SearchPeople parentActivity;
+				parentActivity = (SearchPeople)this.getParent();
+				parentActivity.RefreshTitles();
+			}
+			else {
+				SearchJobs parentActivity;
+				parentActivity = (SearchJobs)this.getParent();
+				parentActivity.RefreshTitles();
+			}
+		}
+		catch (Exception e) { }
+
 		if (listItems.size() == 0)
 			txtEmpty.setText(getString(R.string.no_offers));
 		else {

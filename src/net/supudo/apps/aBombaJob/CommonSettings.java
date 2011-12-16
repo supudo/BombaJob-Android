@@ -2,8 +2,10 @@ package net.supudo.apps.aBombaJob;
 
 import java.util.Date;
 
-public class CommonSettings {
+public enum CommonSettings {
+	INSTANCE;
 	
+	/*
 	private static CommonSettings ref;
 
 	private CommonSettings(){};
@@ -17,6 +19,7 @@ public class CommonSettings {
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException(); 
 	}
+	*/
 	
 	public static final String BASE_SERVICES_URL = "http://www.bombajob.bg/_mob_service_json.php";
 	public static final String HOST_NAME = "www.bombajob.bg";

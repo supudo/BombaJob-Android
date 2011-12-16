@@ -175,6 +175,19 @@ public class DataHelper {
 		return selectCategory(DatabaseSchema.CategoriesColumns._ID + " IN (SELECT cid FROM joboffers WHERE humanyn = " + ((humanYn) ? "1" :"0" ) + ")", null);
 	}
 
+	public int getCategoryCount(boolean humanYn) {
+		SQLiteDatabase db = dbModel.getReadableDatabase();
+		Cursor c = db.query(DatabaseSchema.CATEGORY_TABLE_NAME, new String[] {
+					DatabaseSchema.CategoriesColumns._ID,
+					DatabaseSchema.CategoriesColumns.TITLE,
+					DatabaseSchema.CategoriesColumns.OFFERS_COUNT},
+					DatabaseSchema.CategoriesColumns._ID + " IN (SELECT cid FROM joboffers WHERE humanyn = " + ((humanYn) ? "1" :"0" ) + ")", null, null, null, null);
+		int rowsCount = c.getCount();
+		c.close();
+		db.close(); 
+		return rowsCount;
+	}
+
 	public ArrayList<CategoryModel> selectCategory(String selection, String[] args) {
 		SQLiteDatabase db = dbModel.getReadableDatabase();
 		Cursor c = db.query(DatabaseSchema.CATEGORY_TABLE_NAME, new String[] {
@@ -211,6 +224,17 @@ public class DataHelper {
 	 * 
 	 * ------------------------------------------
 	 */
+	public int getJobOffersCount(boolean humanYn) {
+		SQLiteDatabase db = dbModel.getReadableDatabase();
+		Cursor c = db.query(DatabaseSchema.JOBOFFER_TABLE_NAME, new String[] {
+					DatabaseSchema.JobOffersColumns._ID, DatabaseSchema.JobOffersColumns.CATEGORY_ID},
+				DatabaseSchema.JobOffersColumns.HUMAN_YN + " = " + ((humanYn) ? "1" :"0" ), null, null, null, null);
+		int rowsCount = c.getCount();
+		c.close();
+		db.close(); 
+		return rowsCount;
+	}
+
 	public ArrayList<JobOfferModel> selectAllJobOffers() {
 		return selectJobOffers(null, null, null);
 	}

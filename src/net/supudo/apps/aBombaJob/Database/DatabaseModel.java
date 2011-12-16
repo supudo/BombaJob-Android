@@ -82,11 +82,11 @@ public class DatabaseModel extends SQLiteOpenHelper {
 	private void InitSettings(SQLiteDatabase db) {
 		String[] settings = new String[8];
 		settings[0] = "StorePrivateData|TRUE|1";
-		settings[1] = "SendGeo|FALSE|1";
+		settings[1] = "SendGeo|FALSE|0";
 		settings[2] = "InitSync|TRUE|1";
 		settings[3] = "OnlineSearch|TRUE|1";
 		settings[4] = "InAppEmail|FALSE|1";
-		settings[5] = "ShowCategories|TRUE|1";
+		settings[5] = "ShowCategories|TRUE|0";
 		settings[6] = "lastSyncDate| |0";
 		settings[7] = "PrivateData_Email| |0";
 

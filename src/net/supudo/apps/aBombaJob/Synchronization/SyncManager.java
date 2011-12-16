@@ -205,10 +205,10 @@ public class SyncManager implements URLHelperCallbacks {
 		}
 	}
 	
-	public void PostOffer(boolean pHumanYn, int pFreelance, int pCategoryID, String valTitle, String valEmail, String valPositiv, String valNegativ) {
+	public void PostOffer(boolean pHumanYn, int pFreelance, int pCategoryID, String valTitle, String valEmail, String valPositiv, String valNegativ, double[] geoLoc) {
 		try {
 			Log.d("Sync", "PostOffer ... ");
-			this.postOffer(pHumanYn, pFreelance, pCategoryID, valTitle, valEmail, valPositiv, valNegativ);
+			this.postOffer(pHumanYn, pFreelance, pCategoryID, valTitle, valEmail, valPositiv, valNegativ, geoLoc);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -369,7 +369,7 @@ public class SyncManager implements URLHelperCallbacks {
 		urlHelper.postData(CommonSettings.BASE_SERVICES_URL + ServicesNames.SENDEMAIL_SERVICE + "&oid=" + oid, postData, WebServiceID.SENDEMAIL_SERVICE);
 	}
 	
-	public void postOffer(boolean pHumanYn, int pFreelance, int pCategoryID, String valTitle, String valEmail, String valPositiv, String valNegativ) throws MalformedURLException, NotFoundException, JSONException {
+	public void postOffer(boolean pHumanYn, int pFreelance, int pCategoryID, String valTitle, String valEmail, String valPositiv, String valNegativ, double[] geoLoc) throws MalformedURLException, NotFoundException, JSONException {
 		this.state = ServicesNames.POSTOFFER_SERVICE;
 		Log.d("Sync", CommonSettings.BASE_SERVICES_URL + ServicesNames.POSTOFFER_SERVICE);
 		JSONObject obj = new JSONObject();
@@ -380,6 +380,8 @@ public class SyncManager implements URLHelperCallbacks {
 		obj.put("em", valEmail);
 		obj.put("pos", valPositiv);
 		obj.put("neg", valNegativ);
+		obj.put("glat", geoLoc[0]);
+		obj.put("glong", geoLoc[1]);
 		String postData = obj.toString();
 		urlHelper.postData(CommonSettings.BASE_SERVICES_URL + ServicesNames.POSTOFFER_SERVICE, postData, WebServiceID.POSTOFFER_SERVICE);
 	}

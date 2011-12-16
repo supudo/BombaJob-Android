@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-//import android.widget.Toast;
 
 public class TableActivity extends ListActivity {
 
@@ -34,7 +33,6 @@ public class TableActivity extends ListActivity {
 	        case R.id.newestoffers:
 	        	mIntent = new Intent().setClass(this, NewestOffers.class);
             	startActivityForResult(mIntent, 0);
-	        	//Toast.makeText(this, R.string.title_NewestOffers, Toast.LENGTH_LONG).show();
 	        	break;
 	        case R.id.jobs:
 	        	if (CommonSettings.stShowCategories)
@@ -44,7 +42,6 @@ public class TableActivity extends ListActivity {
 	        		mIntent.putExtra("humanyn", false);
 	        	}
             	startActivityForResult(mIntent, 0);
-            	//Toast.makeText(this, R.string.title_Jobs, Toast.LENGTH_LONG).show();
 	        	break;
 	        case R.id.people:
 	        	if (CommonSettings.stShowCategories)
@@ -54,32 +51,28 @@ public class TableActivity extends ListActivity {
 	        		mIntent.putExtra("humanyn", true);
 	        	}
             	startActivityForResult(mIntent, 0);
-            	//Toast.makeText(this, R.string.title_People, Toast.LENGTH_LONG).show();
 	        	break;
 	        case R.id.search:
 	        	mIntent = new Intent().setClass(this, Search.class);
             	startActivityForResult(mIntent, 0);
-            	//Toast.makeText(this, R.string.title_Search, Toast.LENGTH_LONG).show();
 	        	break;
 	        case R.id.post:
 	        	mIntent = new Intent().setClass(this, Post.class);
             	startActivityForResult(mIntent, 0);
-            	//Toast.makeText(this, R.string.title_PostOffer, Toast.LENGTH_LONG).show();
 	        	break;
 	        case R.id.settings:
 	        	mIntent = new Intent().setClass(this, Settings.class);
             	startActivityForResult(mIntent, 0);
-            	//Toast.makeText(this, R.string.title_Settings, Toast.LENGTH_LONG).show();
 	        	break;
 	        case R.id.syncagain:
 	        	CommonSettings.lastSyncDate = null;
 	        	mIntent = new Intent().setClass(this, BombaJobActivity.class);
+	        	mIntent.putExtra("forceSync", true);
             	startActivityForResult(mIntent, 0);
 	        	break;
 	        case R.id.about:
 	        	mIntent = new Intent().setClass(this, About.class);
             	startActivityForResult(mIntent, 0);
-            	//Toast.makeText(this, R.string.title_AboutBombaJob, Toast.LENGTH_LONG).show();
 	        	break;
         }
         return true;

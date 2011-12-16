@@ -26,6 +26,7 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
 	public static boolean isSynchronized = false;
 	private SyncManager syncManager;
 	private DataHelper dbHelper;
+	private boolean forceSync;
 
     /** Called when the activity is first created. */
     @Override
@@ -34,13 +35,20 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
         setContentView(R.layout.main);
 		setTitle(R.string.app_name);		
 		isSynchronized = false;
+		forceSync = false;
     }
 
     @Override
     public void onStart() {
     	super.onStart();
 
-    	isSynchronized = checkLastSyncDate();
+    	Intent starting_intent = getIntent();
+		Bundle extra = starting_intent.getExtras();
+		if (extra != null)
+			forceSync = extra.getBoolean("forceSync");
+
+    	isSynchronized = shouldSkipSync();
+    	forceSync = false;
  
     	syncProgress = (ProgressBar)findViewById(R.id.sync_progress);
     	syncProgress.setIndeterminate(true);
@@ -121,14 +129,14 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
 		}
 	}
 	
-	private boolean checkLastSyncDate() {
+	private boolean shouldSkipSync() {
 		if (dbHelper == null)
 			dbHelper = new DataHelper(this);
 
 		SettingModel settLastSyncDate = dbHelper.GetSetting("lastSyncDate");
 		SimpleDateFormat df = new SimpleDateFormat(CommonSettings.DefaultDateFormat);
 
-		if (CommonSettings.lastSyncDate == null && (settLastSyncDate == null || settLastSyncDate.SValue.trim().equalsIgnoreCase(""))) {
+		if (forceSync || (CommonSettings.lastSyncDate == null && (settLastSyncDate == null || settLastSyncDate.SValue.trim().equalsIgnoreCase("")))) {
 			CommonSettings.lastSyncDate = Calendar.getInstance().getTime();
 			dbHelper.SetSetting("lastSyncDate", df.format(CommonSettings.lastSyncDate));
 			Log.d("Sync", "Scheduling synchronization now ...");

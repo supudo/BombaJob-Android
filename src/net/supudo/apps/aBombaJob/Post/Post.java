@@ -1,6 +1,7 @@
 package net.supudo.apps.aBombaJob.Post;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -19,7 +20,10 @@ import net.supudo.apps.aBombaJob.Synchronization.SyncManager.SyncManagerCallback
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -165,7 +169,34 @@ public class Post extends MainActivity implements Runnable, SyncManagerCallbacks
 	}
 	
 	public void run() {
-		syncManager.PostOffer(pHumanYn, pFreelance, pCategoryID, valTitle, valEmail, valPositiv, valNegativ);
+		double[] geoLoc = new double[2];
+		if (CommonSettings.stSendGeo)
+			geoLoc = getGeoCoordinates();
+		else {
+			geoLoc[0] = 0;
+			geoLoc[1] = 0;
+		}
+
+		syncManager.PostOffer(pHumanYn, pFreelance, pCategoryID, valTitle, valEmail, valPositiv, valNegativ, geoLoc);
+	}
+	
+	private double[] getGeoCoordinates() {
+		LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);  
+		List<String> providers = lm.getProviders(true);
+
+		Location l = null;
+		for (int i=providers.size() - 1; i>=0; i--) {
+			l = lm.getLastKnownLocation(providers.get(i));
+			if (l != null)
+				break;
+		}
+
+		double[] gps = new double[2];
+		if (l != null) {
+			gps[0] = l.getLatitude();
+			gps[1] = l.getLongitude();
+		}
+		return gps;
 	}
 	
 	private OnClickListener btnPostListener = new OnClickListener() {
