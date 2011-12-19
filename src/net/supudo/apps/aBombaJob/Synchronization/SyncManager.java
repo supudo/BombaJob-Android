@@ -148,6 +148,13 @@ public class SyncManager implements URLHelperCallbacks {
 		}
 	}
 
+	public void GetNewestOffers() {
+		db = dbModel.getWritableDatabase();
+		db.execSQL("PRAGMA foreign_keys = ON;");
+		Log.d("Sync", "GetNewestOffers ... ");
+		synchronize(ServicesNames.NEWOFFERS_SERVICE, false);
+	}
+
 	public void GetSearchJobs() {
 		db = dbModel.getWritableDatabase();
 		db.execSQL("PRAGMA foreign_keys = ON;");
