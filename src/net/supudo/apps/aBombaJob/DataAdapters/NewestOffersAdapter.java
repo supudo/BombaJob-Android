@@ -68,20 +68,20 @@ public class NewestOffersAdapter extends ArrayAdapter<JobOfferModel> {
 		else
 			holder.title.setTypeface(null, Typeface.BOLD);
 
-		String osubtitle = ((off.HumanYn) ? this.context.getString(R.string.human_short) : this.context.getString(R.string.company_short));
+		String osubtitle = "";//((off.HumanYn) ? this.context.getString(R.string.human_short) : this.context.getString(R.string.company_short));
 		try {
 			DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 			Date date = (Date)formatter.parse(off.PublishDate);
 			int month = date.getMonth() + 1;
 
 			String weekdayLabel = "weekday_" + date.getDay();
-			osubtitle += " // " + (String) this.context.getResources().getText(this.context.getResources().getIdentifier(weekdayLabel, "string", "net.supudo.apps.aBombaJob"));
+			osubtitle += (String) this.context.getResources().getText(this.context.getResources().getIdentifier(weekdayLabel, "string", "net.supudo.apps.aBombaJob"));
 
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(date);
 			osubtitle += ", " + cal.get(Calendar.DAY_OF_MONTH);
 
-			String monthLabel = "monthsShort_" + month;
+			String monthLabel = "monthsLong_" + month;
 			osubtitle += " " + (String) this.context.getResources().getText(this.context.getResources().getIdentifier(monthLabel, "string", "net.supudo.apps.aBombaJob"));
 		}
 		catch (ParseException e) {

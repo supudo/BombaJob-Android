@@ -9,7 +9,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import net.supudo.apps.aBombaJob.CommonSettings;
-import net.supudo.apps.aBombaJob.MainActivity;
 import net.supudo.apps.aBombaJob.Database.DataHelper;
 import net.supudo.apps.aBombaJob.Database.Models.JobOfferModel;
 import net.supudo.apps.aBombaJob.SocNet.Facebook.BaseDialogListener;
@@ -39,6 +38,7 @@ import twitter4j.auth.RequestToken;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -55,6 +55,9 @@ import android.os.Message;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -62,7 +65,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class OfferDetails extends MainActivity implements Runnable, SyncManagerCallbacks {
+public class OfferDetails extends Activity implements Runnable, SyncManagerCallbacks {
 
 	private Integer offerID;
 	private DataHelper dbHelper;
@@ -268,6 +271,45 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
     		}
     	}
     }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.offer_options, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	Intent starting_intent = getIntent();
+		Bundle extra = starting_intent.getExtras();
+		int offerID = 0;
+		if (extra != null) {
+			offerID = extra.getInt("offerid");
+	    	Intent mIntent;
+	        switch (item.getItemId()) {
+		        case R.id.sendmessage:
+		        	mIntent = new Intent().setClass(this, SendMessage.class);
+		    		mIntent.putExtra("offerid", offerID);
+		    		startActivity(mIntent);
+		        	break;
+		        case R.id.share_facebook:
+	            	this.PostOnFacebook();
+		        	break;
+		        case R.id.share_twitter:
+	            	this.PostToTwitter();
+		        	break;
+		        case R.id.share_email:
+	            	this.SendEmail();
+		        	break;
+		        case R.id.goback:
+	            	this.goBack();
+		        	break;
+
+	        }
+		}
+        return true;
+    }
 
 	/* ------------------------------------------
 	 * 
@@ -313,7 +355,7 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
 	 * 
 	 * ------------------------------------------
 	 */
-    private void SendEmail() {
+    public void SendEmail() {
     	this.selectedOp = SocNetOp.SocNetOpEmail;
     	if (CommonSettings.stInAppEmail) {
 	    	try {
@@ -370,7 +412,7 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
 	 * 
 	 * ------------------------------------------
 	 */
-	private void PostToTwitter() {
+	public void PostToTwitter() {
     	this.selectedOp = SocNetOp.SocNetOpTwitter;
 		PostToTwitterApp();
 	}
@@ -443,7 +485,7 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
 	 * 
 	 * ------------------------------------------
 	 */
-	private void PostOnFacebook() {
+	public void PostOnFacebook() {
     	this.selectedOp = SocNetOp.SocNetOpFacebook;
          try {
         	 String response = engineFacebook.request("me");
@@ -495,8 +537,10 @@ public class OfferDetails extends MainActivity implements Runnable, SyncManagerC
         public void onComplete(final String response, final Object state) {
             try {
             	Log.d("OfferDetails", "Facebook response - " + response);
+            	String message = "<empty>";
                 JSONObject json = Util.parseJson(response);
-                String message = json.getString("message");
+                //message = json.getString("message");
+                message = json.getString("id");
                 Log.d("OfferDetails", "Facebook post success - " + message);
             }
             catch (JSONException e) {

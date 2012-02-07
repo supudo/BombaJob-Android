@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/sendmessage" android:title="@string/contextmenu_sendmessageshort" android:icon="@android:drawable/ic_menu_send" />
+    <item android:id="@+id/share" android:title="@string/contextmenu_share" android:icon="@android:drawable/ic_menu_share">
+        <menu>
+		    <item android:id="@+id/share_email" android:title="@string/contextmenu_shareemail" />
+		    <item android:id="@+id/share_facebook" android:title="@string/contextmenu_sharefb" />
+		    <item android:id="@+id/share_twitter" android:title="@string/contextmenu_sharetw" />
+		</menu>
+	</item>
+    <item android:id="@+id/goback" android:title="@string/contextmenu_goback" android:icon="@android:drawable/ic_menu_more" />
+</menu>

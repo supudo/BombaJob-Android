@@ -16,6 +16,7 @@
 
 package com.facebook.android;
 
+import net.supudo.apps.aBombaJob.R;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -37,14 +38,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.facebook.android.Facebook.DialogListener;
-import net.supudo.apps.aBombaJob.R;
 
 public class FbDialog extends Dialog {
 
     static final int FB_BLUE = 0xFF6D84B4;
     static final float[] DIMENSIONS_DIFF_LANDSCAPE = {20, 60};
     static final float[] DIMENSIONS_DIFF_PORTRAIT = {40, 60};
-    static final FrameLayout.LayoutParams FILL = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT);
+    static final FrameLayout.LayoutParams FILL =
+        new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                         ViewGroup.LayoutParams.FILL_PARENT);
     static final int MARGIN = 4;
     static final int PADDING = 2;
     static final String DISPLAY_STRING = "touch";
@@ -135,35 +137,40 @@ public class FbDialog extends Dialog {
                 Bundle values = Util.parseUrl(url);
 
                 String error = values.getString("error");
-                if (error == null)
+                if (error == null) {
                     error = values.getString("error_type");
+                }
 
-                if (error == null)
+                if (error == null) {
                     mListener.onComplete(values);
-                else if (error.equals("access_denied") || error.equals("OAuthAccessDeniedException"))
+                } else if (error.equals("access_denied") ||
+                           error.equals("OAuthAccessDeniedException")) {
                     mListener.onCancel();
-                else
+                } else {
                     mListener.onFacebookError(new FacebookError(error));
+                }
 
                 FbDialog.this.dismiss();
                 return true;
-            }
-            else if (url.startsWith(Facebook.CANCEL_URI)) {
+            } else if (url.startsWith(Facebook.CANCEL_URI)) {
                 mListener.onCancel();
                 FbDialog.this.dismiss();
                 return true;
-            }
-            else if (url.contains(DISPLAY_STRING))
+            } else if (url.contains(DISPLAY_STRING)) {
                 return false;
+            }
             // launch non-dialog URLs in a full browser
-            getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+            getContext().startActivity(
+                    new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
             return true;
         }
 
         @Override
-        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+        public void onReceivedError(WebView view, int errorCode,
+                String description, String failingUrl) {
             super.onReceivedError(view, errorCode, description, failingUrl);
-            mListener.onError(new DialogError(description, errorCode, failingUrl));
+            mListener.onError(
+                    new DialogError(description, errorCode, failingUrl));
             FbDialog.this.dismiss();
         }
 

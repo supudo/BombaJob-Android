@@ -2,10 +2,8 @@ package net.supudo.apps.aBombaJob.Database;
 
 import net.supudo.apps.aBombaJob.Database.DatabaseSchema.CategoriesColumns;
 import net.supudo.apps.aBombaJob.Database.DatabaseSchema.JobOffersColumns;
-import net.supudo.apps.aBombaJob.Database.DatabaseSchema.SettingsColumns;
 import net.supudo.apps.aBombaJob.Database.DatabaseSchema.TextContentColumns;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -15,13 +13,6 @@ public class DatabaseModel extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "BombaJob";
 	private static final int DATABASE_VERSION = 1;
-
-	private static final String SETTINGS_TABLE_CREATE =
-		"CREATE TABLE " + DatabaseSchema.SETTINGS_TABLE_NAME + " (" +
-		SettingsColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-		SettingsColumns.EDITABLE_YN + " TINYINT," +
-		SettingsColumns.SNAME + " VARCHAR," +
-		SettingsColumns.SVALUE + " VARCHAR);";
 
 	private static final String TEXTCONTENT_TABLE_CREATE =
 		"CREATE TABLE " + DatabaseSchema.TEXTCONTENT_TABLE_NAME + " (" +
@@ -60,7 +51,6 @@ public class DatabaseModel extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("PRAGMA foreign_keys = ON;");
-		db.execSQL(SETTINGS_TABLE_CREATE);
 		db.execSQL(TEXTCONTENT_TABLE_CREATE);
 		db.execSQL(CATEGORY_TABLE_CREATE);
 		db.execSQL(JOBOFFER_TABLE_CREATE);
@@ -71,7 +61,6 @@ public class DatabaseModel extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.w("DatabaseModel", "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
-		db.execSQL("DROP TABLE IF EXISTS " + DatabaseSchema.SETTINGS_TABLE_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + DatabaseSchema.TEXTCONTENT_TABLE_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + DatabaseSchema.JOBOFFER_TABLE_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + DatabaseSchema.CATEGORY_TABLE_NAME);
@@ -89,17 +78,6 @@ public class DatabaseModel extends SQLiteOpenHelper {
 		settings[5] = "ShowCategories|TRUE|0";
 		settings[6] = "lastSyncDate| |0";
 		settings[7] = "PrivateData_Email| |0";
-
-		ContentValues cv;
-		for (int i=0; i<settings.length; i++) {
-			cv = new ContentValues();
-			String[] starr = settings[i].split("\\|");
-			cv.put(DatabaseSchema.SettingsColumns.SNAME, starr[0]);
-			cv.put(DatabaseSchema.SettingsColumns.SVALUE, starr[1]);
-			cv.put(DatabaseSchema.SettingsColumns.EDITABLE_YN, starr[2]);
-			db.insert(DatabaseSchema.SETTINGS_TABLE_NAME, null, cv);
-		}
-		Log.e("DatabaseModel", "Settings initiated");
 	}
 
 }

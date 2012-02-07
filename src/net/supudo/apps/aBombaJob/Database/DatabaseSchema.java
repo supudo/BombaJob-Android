@@ -4,17 +4,9 @@ import android.provider.BaseColumns;
 
 public class DatabaseSchema {
 
-	public static final String SETTINGS_TABLE_NAME = "settings";
 	public static final String TEXTCONTENT_TABLE_NAME = "textcontent";
 	public static final String CATEGORY_TABLE_NAME = "categories";
 	public static final String JOBOFFER_TABLE_NAME = "joboffers";
-
-	public static final class SettingsColumns implements BaseColumns {
-		private SettingsColumns(){};
-		public static final String EDITABLE_YN = "editableyn";
-		public static final String SNAME = "sname";
-		public static final String SVALUE = "svalue";
-	}
 
 	public static final class TextContentColumns implements BaseColumns {
 		private TextContentColumns(){};

@@ -1,14 +1,8 @@
 package net.supudo.apps.aBombaJob;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import net.supudo.apps.aBombaJob.Database.DataHelper;
-import net.supudo.apps.aBombaJob.Database.Models.SettingModel;
 import net.supudo.apps.aBombaJob.Offers.NewestOffers;
 import net.supudo.apps.aBombaJob.Synchronization.SyncManager;
 import net.supudo.apps.aBombaJob.Synchronization.SyncManager.SyncManagerCallbacks;
@@ -16,7 +10,9 @@ import net.supudo.apps.aBombaJob.Synchronization.SyncManager.SyncManagerCallback
 import net.supudo.apps.aBombaJob.R;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.ProgressBar;
 
@@ -25,7 +21,6 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
 	private ProgressBar syncProgress;
 	public static boolean isSynchronized = false;
 	private SyncManager syncManager;
-	private DataHelper dbHelper;
 	private boolean forceSync;
 
     /** Called when the activity is first created. */
@@ -33,7 +28,7 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-		setTitle(R.string.app_name);		
+		setTitle(R.string.app_name);
 		isSynchronized = false;
 		forceSync = false;
     }
@@ -41,6 +36,7 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
     @Override
     public void onStart() {
     	super.onStart();
+		LoadSettings();
 
     	Intent starting_intent = getIntent();
 		Bundle extra = starting_intent.getExtras();
@@ -83,7 +79,6 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
 	@Override
 	public void syncFinished() {
 		isSynchronized = true;
-		LoadSettings();
 		CommonSettings.lastSyncDate = Calendar.getInstance().getTime();
     	Intent myIntent = new Intent().setClass(BombaJobActivity.this, NewestOffers.class);
     	startActivityForResult(myIntent, 0);
@@ -100,70 +95,36 @@ public class BombaJobActivity extends MainActivity implements SyncManagerCallbac
 	}
 	
 	private void LoadSettings() {
-		if (dbHelper == null)
-			dbHelper = new DataHelper(this);
-		
-		ArrayList<SettingModel> listSettings = dbHelper.selectAllSettings();
-		SettingModel _model = null;
-		String sName = "";
-		boolean sValue = false;
-		for (int i=0; i<listSettings.size(); i++) {
-			_model = (SettingModel)listSettings.get(i);
-			if (_model.EditableYn) {
-				sName = _model.SName;
-				sValue = Boolean.valueOf(_model.SValue);
-	
-				if (sName.equalsIgnoreCase("StorePrivateData"))
-					CommonSettings.stStorePrivateData = sValue;
-				else if (sName.equalsIgnoreCase("SendGeo"))
-					CommonSettings.stSendGeo = sValue;
-				else if (sName.equalsIgnoreCase("InitSync"))
-					CommonSettings.stInitSync = sValue;
-				else if (sName.equalsIgnoreCase("OnlineSearch"))
-					CommonSettings.stSearchOnline = sValue;
-				else if (sName.equalsIgnoreCase("InAppEmail"))
-					CommonSettings.stInAppEmail = sValue;
-				else if (sName.equalsIgnoreCase("ShowCategories"))
-					CommonSettings.stShowCategories = sValue;
-			}
-		}
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		CommonSettings.stStorePrivateData = sharedPrefs.getBoolean("StorePrivateData", false);
+		CommonSettings.stSendGeo = sharedPrefs.getBoolean("SendGeo", false);
+		CommonSettings.stInitSync = sharedPrefs.getBoolean("InitSync", false);
+		CommonSettings.stSearchOnline = sharedPrefs.getBoolean("InitSync", false);
+		CommonSettings.stInAppEmail = sharedPrefs.getBoolean("InAppEmail", false);
+		CommonSettings.stShowCategories = sharedPrefs.getBoolean("ShowCategories", false);
+		Log.d("Preferences", "lastSyncDate = " + sharedPrefs.getLong("lastSyncDate", 0));
+		CommonSettings.lastSyncDate = new Date(sharedPrefs.getLong("lastSyncDate", 0));
+		CommonSettings.stPrivateData_Email = sharedPrefs.getString("PrivateData_Email", "");
 	}
 	
 	private boolean shouldSkipSync() {
-		if (dbHelper == null)
-			dbHelper = new DataHelper(this);
-
-		SettingModel settLastSyncDate = dbHelper.GetSetting("lastSyncDate");
-		SimpleDateFormat df = new SimpleDateFormat(CommonSettings.DefaultDateFormat);
-
-		if (forceSync || (CommonSettings.lastSyncDate == null && (settLastSyncDate == null || settLastSyncDate.SValue.trim().equalsIgnoreCase("")))) {
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if (forceSync || CommonSettings.lastSyncDate == null) {
 			CommonSettings.lastSyncDate = Calendar.getInstance().getTime();
-			dbHelper.SetSetting("lastSyncDate", df.format(CommonSettings.lastSyncDate));
+			sharedPrefs.edit().putLong("lastSyncDate", CommonSettings.lastSyncDate.getTime()).commit();
 			Log.d("Sync", "Scheduling synchronization now ...");
 			return false;
 		}
 		else {
-			DateFormat formatter = new SimpleDateFormat(CommonSettings.DefaultDateFormat);
-			Date ldt = null;
-			try {
-				ldt = (Date)formatter.parse(settLastSyncDate.SValue);
-			}
-			catch (ParseException ex) {
-				ldt = Calendar.getInstance().getTime();
-				Log.e("BombaJobActivity", "lastSyncDate parse failed!");
-			}
-			long diffInSeconds = (Calendar.getInstance().getTime().getTime() - ldt.getTime()) / 1000;
+			long diffInSeconds = (Calendar.getInstance().getTime().getTime() - CommonSettings.lastSyncDate.getTime()) / 1000;
 			Log.d("Sync", "Skipping synchronization - last @ " + (diffInSeconds * 60));
 			if (diffInSeconds >= 3600) {
 				CommonSettings.lastSyncDate = Calendar.getInstance().getTime();
-				dbHelper.SetSetting("lastSyncDate", df.format(CommonSettings.lastSyncDate));
+				sharedPrefs.edit().putLong("lastSyncDate", CommonSettings.lastSyncDate.getTime()).commit();
 				return false;
 			}
-			else {
-				if (CommonSettings.lastSyncDate == null)
-					CommonSettings.lastSyncDate = ldt;
+			else
 				return true;
-			}
 		}
 	}
 }

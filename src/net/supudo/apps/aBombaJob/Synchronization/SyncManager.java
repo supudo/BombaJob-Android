@@ -82,7 +82,6 @@ public class SyncManager implements URLHelperCallbacks {
 	public void clearDatabase() {
 		SQLiteDatabase db_tmp = dbModel.getWritableDatabase();
 		db_tmp.execSQL("PRAGMA foreign_keys = OFF;");
-		db_tmp.execSQL("DELETE FROM " + DatabaseSchema.SETTINGS_TABLE_NAME);
 		db_tmp.execSQL("DELETE FROM " + DatabaseSchema.TEXTCONTENT_TABLE_NAME);
 		db_tmp.execSQL("DELETE FROM " + DatabaseSchema.JOBOFFER_TABLE_NAME);
 		db_tmp.execSQL("DELETE FROM " + DatabaseSchema.CATEGORY_TABLE_NAME);
@@ -230,7 +229,6 @@ public class SyncManager implements URLHelperCallbacks {
 	 * 
 	 * ------------------------------------------
 	 */
-
 	@Override
 	public void updateModelWithJSONObject(JSONObject object, Integer serviceId) {
 		try {
@@ -256,6 +254,7 @@ public class SyncManager implements URLHelperCallbacks {
 				Log.d("Sync", "updateModelWithJSONObject ... new offers");
 				this.handleNewOffers(object);
 				mDelegate.onSyncProgress(400);
+				mDelegate.syncFinished();
 			}
 			else if (serviceId == WebServiceID.SEARCHJOBS_SERVICE) {
 				Log.d("Sync", "updateModelWithJSONObject ... search jobs");

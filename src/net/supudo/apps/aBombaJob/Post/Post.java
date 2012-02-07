@@ -22,11 +22,13 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -232,8 +234,10 @@ public class Post extends MainActivity implements Runnable, SyncManagerCallbacks
     };
 	
 	private void LoadDropdowns() {
-    	if (CommonSettings.stStorePrivateData)
-    		txtEmail.setText((dbHelper.GetSetting("PrivateData_Email")).SValue);
+    	if (CommonSettings.GetSetting(this, CommonSettings.AppSettings.stStorePrivateData))
+    		txtEmail.setText(CommonSettings.stPrivateData_Email);
+    	else
+    		txtEmail.setText("");
 
 		ArrayAdapter<CharSequence> _adapterHumanCompany = ArrayAdapter.createFromResource(this, R.array.post_HumanCompany_array, android.R.layout.simple_spinner_item);
 		_adapterHumanCompany.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -291,8 +295,11 @@ public class Post extends MainActivity implements Runnable, SyncManagerCallbacks
 	}
     
     private void goBack() {
-    	if (CommonSettings.stStorePrivateData)
-    		dbHelper.SetSetting("PrivateData_Email", valEmail);
+    	if (CommonSettings.stStorePrivateData) {
+    		CommonSettings.stPrivateData_Email = valEmail;
+    		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+    		sharedPrefs.edit().putString("PrivateData_Email", CommonSettings.stPrivateData_Email);
+    	}
     	Toast.makeText(getApplicationContext(), R.string.post_OfferSuccess, Toast.LENGTH_SHORT).show();
     	Timer timer = new Timer();
         timer.schedule( new TimerTask(){

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/about_StorePrivateData_group" android:key="bjsettings_privateData">
+        
+        <CheckBoxPreference 
+            android:key="StorePrivateData"
+            android:summary="@string/about_StorePrivateData_summary"
+            android:title="@string/about_StorePrivateData_title" 
+            android:defaultValue="true"
+        />
+        
+        <EditTextPreference
+            android:key="PrivateData_Email"
+            android:title="@string/about_StorePrivateData_EmailEnter" 
+            android:summary=""
+            android:dialogTitle="@string/about_StorePrivateData_EmailEnter"
+            android:dialogMessage=""    
+            android:defaultValue="" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings" android:key="bjsettings">
+        
+        <CheckBoxPreference 
+            android:key="SendGeo"
+            android:summary="@string/about_SendGeo_summary"
+            android:title="@string/about_SendGeo_title" 
+            android:defaultValue="true"
+        />
+        
+        <CheckBoxPreference 
+            android:key="InitSync"
+            android:summary="@string/about_InitSync_summary"
+            android:title="@string/about_InitSync_title" 
+            android:defaultValue="true"
+        />
+        
+        <CheckBoxPreference 
+            android:key="OnlineSearch"
+            android:summary="@string/about_OnlineSearch_summary"
+            android:title="@string/about_OnlineSearch_title" 
+            android:defaultValue="true"
+        />
+        
+        <CheckBoxPreference 
+            android:key="InAppEmail"
+            android:summary="@string/about_InAppEmail_summary"
+            android:title="@string/about_InAppEmail_title" 
+            android:defaultValue="true"
+        />
+        
+        <CheckBoxPreference 
+            android:key="ShowCategories"
+            android:summary="@string/about_ShowCategories_summary"
+            android:title="@string/about_ShowCategories_title" 
+            android:defaultValue="true"
+        />
+
+    </PreferenceCategory>
+    
+</PreferenceScreen>

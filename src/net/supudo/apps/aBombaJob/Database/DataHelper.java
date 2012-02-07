@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import net.supudo.apps.aBombaJob.Database.Models.CategoryModel;
 import net.supudo.apps.aBombaJob.Database.Models.JobOfferModel;
-import net.supudo.apps.aBombaJob.Database.Models.SettingModel;
 import net.supudo.apps.aBombaJob.Database.Models.TextContentModel;
 
 
@@ -13,7 +12,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class DataHelper {
 
@@ -23,86 +21,6 @@ public class DataHelper {
 	public DataHelper(Context ctx) {
 		mCtx = ctx;
 		dbModel = new DatabaseModel(mCtx);
-	}
-
-	/* ------------------------------------------
-	 * 
-	 * Settings
-	 * 
-	 * ------------------------------------------
-	 */
-	public ArrayList<SettingModel> selectAllSettings() {
-		return selectSettings(null, null);
-	}
-
-	public ArrayList<SettingModel> selectSettings(String selection, String[] args) {
-		SQLiteDatabase db = dbModel.getReadableDatabase();
-		Cursor c = db.query(DatabaseSchema.SETTINGS_TABLE_NAME, new String[] {
-					DatabaseSchema.SettingsColumns._ID,
-					DatabaseSchema.SettingsColumns.EDITABLE_YN,
-					DatabaseSchema.SettingsColumns.SNAME,
-					DatabaseSchema.SettingsColumns.SVALUE},
-				selection, args, null, null, null);
-		c.moveToFirst();
-		ArrayList<SettingModel> resu = new ArrayList<SettingModel>();
-		while (c.isAfterLast() == false)
-		{
-			boolean editableYn = (c.getInt(c.getColumnIndex(DatabaseSchema.SettingsColumns.EDITABLE_YN)) == 1);
-			String sname = c.getString(c.getColumnIndex(DatabaseSchema.SettingsColumns.SNAME));
-			String svalue = c.getString(c.getColumnIndex(DatabaseSchema.SettingsColumns.SVALUE));
-			SettingModel model = new SettingModel(editableYn, sname, svalue);
-			resu.add(model);
-			c.moveToNext();
-		}
-		c.close();
-		db.close();
-		return resu;
-	}
-
-	public ArrayList<SettingModel> selectEditableSettings() {
-		SQLiteDatabase db = dbModel.getReadableDatabase();
-		Cursor c = db.query(DatabaseSchema.SETTINGS_TABLE_NAME, new String[] {
-					DatabaseSchema.SettingsColumns._ID,
-					DatabaseSchema.SettingsColumns.EDITABLE_YN,
-					DatabaseSchema.SettingsColumns.SNAME,
-					DatabaseSchema.SettingsColumns.SVALUE},
-					DatabaseSchema.SettingsColumns.EDITABLE_YN + " = 1", null, null, null, null);
-		c.moveToFirst();
-		ArrayList<SettingModel> resu = new ArrayList<SettingModel>();
-		while (c.isAfterLast() == false)
-		{
-			boolean editableYn = (c.getInt(c.getColumnIndex(DatabaseSchema.SettingsColumns.EDITABLE_YN)) == 1);
-			String sname = c.getString(c.getColumnIndex(DatabaseSchema.SettingsColumns.SNAME));
-			String svalue = c.getString(c.getColumnIndex(DatabaseSchema.SettingsColumns.SVALUE));
-			SettingModel model = new SettingModel(editableYn, sname, svalue);
-			resu.add(model);
-			c.moveToNext();
-		}
-		c.close();
-		db.close();
-		return resu;
-	}
-	
-	public SettingModel GetSetting(String sName) {
-		ArrayList<SettingModel> ar = selectSettings(DatabaseSchema.SettingsColumns.SNAME + " = ?", new String[]{"" + sName});
-		if (ar.size() > 0)
-			return ar.get(0);
-		return null;
-	}
-	
-	public boolean SetSetting(String sName, String sValue) {
-		try {
-			SQLiteDatabase db = new DatabaseModel(mCtx).getReadableDatabase();
-			ContentValues cv = new ContentValues();
-			cv.put(DatabaseSchema.SettingsColumns.SVALUE, sValue);
-			db.update(DatabaseSchema.SETTINGS_TABLE_NAME, cv, DatabaseSchema.SettingsColumns.SNAME + " = ?", new String[]{"" + sName});
-			db.close();
-		}
-		catch (Exception ex) {
-			Log.d("DataHelper", "Setting save failed - " + sName + " : " + sValue);
-			return false;
-		}
-		return true;
 	}
 
 	/* ------------------------------------------
