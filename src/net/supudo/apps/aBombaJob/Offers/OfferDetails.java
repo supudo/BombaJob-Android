@@ -21,7 +21,6 @@ import net.supudo.apps.aBombaJob.Synchronization.SyncManager;
 import net.supudo.apps.aBombaJob.Synchronization.SyncManager.SyncManagerCallbacks;
 import net.supudo.apps.aBombaJob.R;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -488,33 +487,40 @@ public class OfferDetails extends Activity implements Runnable, SyncManagerCallb
 	public void PostOnFacebook() {
     	this.selectedOp = SocNetOp.SocNetOpFacebook;
          try {
-        	 String response = engineFacebook.request("me");
-        	 
-        	 JSONObject attachment = new JSONObject();
-        	 attachment.put("name", jobOffer.Title);
-        	 attachment.put("href", "http://bombajob.bg/offer/" + jobOffer.OfferID);
-        	 attachment.put("caption", jobOffer.Positivism);
-        	 attachment.put("description", jobOffer.Negativism);
-
         	 Bundle params = new Bundle();
-        	 params.putString("attachment", attachment.toString());
+        	 params.putString("name", jobOffer.Title);
+        	 params.putString("picture", "http://bombajob.bg/images/ibombajob.png");
+        	 params.putString("link", "http://bombajob.bg/offer/" + jobOffer.OfferID);
+        	 params.putString("caption", jobOffer.Positivism);
+        	 params.putString("description", jobOffer.Negativism);
 
-        	 JSONObject actionLink = new JSONObject();
-        	 actionLink.put("text", "BombaJob.bg");
-        	 actionLink.put("href", "http://bombajob.bg/");
-        	 
-        	 JSONArray jasonarray = new JSONArray().put(actionLink);
-        	 params.putString("action_links", jasonarray.toString());
-        	 
-        	 engineFacebook.dialog(OfferDetails.this, "stream.publish", params, new FBDialogListener());
-        	 if (response == null || response.equals("") || response.equals("false"))
-        		 Log.v("Error", "Blank response");
-        	 else
-        		 Log.v("Error", "got response: " + response);
+        	 engineFacebook.dialog(OfferDetails.this, "feed", params, new FBDialogListener());
          }
          catch(Exception e) {
              e.printStackTrace();
          }
+    }
+
+    public class FBRequestListener extends BaseRequestListener {
+        public void onComplete(final String response, final Object state) {
+            try {
+                Log.d("OfferDetails", "Response: " + response.toString());
+                JSONObject json = Util.parseJson(response);
+                final String name = json.getString("name");
+                Log.d("OfferDetails", "Logged in user " + name);
+                OfferDetails.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                    	PostOnFacebook();
+                    }
+                });
+            }
+            catch (JSONException e) {
+                Log.w("OfferDetails", "JSON Error in response");
+            }
+            catch (FacebookError e) {
+                Log.w("OfferDetails", "Facebook Error: " + e.getMessage());
+            }
+        }
     }
 	
 	public class FBAuthListener implements AuthListener {
@@ -522,6 +528,7 @@ public class OfferDetails extends Activity implements Runnable, SyncManagerCallb
         	SessionStore.save(engineFacebook, OfferDetails.this);
         }
         public void onAuthFail(String error) {
+            Log.w("OfferDetails", "FBAuthListener error - " + error);
         }
     }
 
@@ -538,10 +545,13 @@ public class OfferDetails extends Activity implements Runnable, SyncManagerCallb
             try {
             	Log.d("OfferDetails", "Facebook response - " + response);
             	String message = "<empty>";
-                JSONObject json = Util.parseJson(response);
-                //message = json.getString("message");
-                message = json.getString("id");
-                Log.d("OfferDetails", "Facebook post success - " + message);
+            	if (Boolean.parseBoolean(response)) {
+            		JSONObject json = Util.parseJson(response);
+            		message = json.getString("id");
+            		Log.d("OfferDetails", "Facebook post success - " + message);
+            	}
+            	else
+            		Log.d("OfferDetails", "Facebook post success, but result is 'false'!");
             }
             catch (JSONException e) {
             	e.printStackTrace();

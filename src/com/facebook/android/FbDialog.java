@@ -16,7 +16,6 @@
 
 package com.facebook.android;
 
-import net.supudo.apps.aBombaJob.R;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -26,7 +25,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -38,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.facebook.android.Facebook.DialogListener;
+import net.supudo.apps.aBombaJob.R;
 
 public class FbDialog extends Dialog {
 
@@ -132,7 +131,7 @@ public class FbDialog extends Dialog {
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            Log.d("Facebook-WebView", "Redirect URL: " + url);
+            Util.logd("Facebook-WebView", "Redirect URL: " + url);
             if (url.startsWith(Facebook.REDIRECT_URI)) {
                 Bundle values = Util.parseUrl(url);
 
@@ -176,7 +175,7 @@ public class FbDialog extends Dialog {
 
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            Log.d("Facebook-WebView", "Webview loading URL: " + url);
+            Util.logd("Facebook-WebView", "Webview loading URL: " + url);
             super.onPageStarted(view, url, favicon);
             mSpinner.show();
         }
