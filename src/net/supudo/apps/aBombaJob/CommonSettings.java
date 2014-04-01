@@ -9,8 +9,8 @@ import android.preference.PreferenceManager;
 public enum CommonSettings {
 	INSTANCE;
 	
-	public static final String BASE_SERVICES_URL = "http://www.bombajob.bg/_mob_service_json.php";
-	public static final String HOST_NAME = "www.bombajob.bg";
+	public static final String BASE_SERVICES_URL = "http://bombajob.supudo.net/_mob_service_json.php";
+	public static final String HOST_NAME = "bombajob.supudo.net";
 	public static final String PREFS_FILE_NAME = "BombaJobPreferences";
 	public static String AppCallbackURI = "bombajobandroid";
 	
@@ -18,9 +18,9 @@ public enum CommonSettings {
 	public static boolean ShowBanners = false;
 	public static String DefaultDateFormat = "yyyy-MM-dd HH:mm:ss";
 	
-	public static String GoogleAddsAppID = "";
-	public static String FacebookAppID = "";
-	public static String TwitterConsumerKey = "", TwitterConsumerSecret = "";
+	public static String GoogleAddsAppID = "a14eb7e357a4b8c";
+	public static String FacebookAppID = "162884250446512";
+	public static String TwitterConsumerKey = "uSlctvG45nI6JawDFzGHw", TwitterConsumerSecret = "RGLWAZDxDBfqnw4i0LHTEEnfRPaYzAZQXZriSI1cI";
 	public static String TwitterCallbackURI = AppCallbackURI + "://twitter";
 	
 	public static final String IEXTRA_AUTH_URL = "auth_url";
